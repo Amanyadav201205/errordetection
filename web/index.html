@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Network Error Detection & Correction Simulator</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Top Navigation Header -->
+    <header class="app-header">
+        <div class="header-left">
+            <div class="logo-icon">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="18" cy="5" r="3"></circle>
+                    <circle cx="6" cy="12" r="3"></circle>
+                    <circle cx="18" cy="19" r="3"></circle>
+                    <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
+                    <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+                </svg>
+            </div>
+            <div>
+                <h1 class="header-title">Interactive Network Error Detection & Correction Simulator</h1>
+                <p class="header-sub">Data Link Layer & Physical Channel Transmission Modeling</p>
+            </div>
+        </div>
+        <div class="header-right">
+            <div class="ns2-badge" id="ns2EngineBadge">
+                <span class="badge-dot pulse"></span>
+                <span id="ns2EngineText">Checking NS-2 Engine...</span>
+            </div>
+            <button class="team-btn" id="btnTeamModal">Team Details</button>
+        </div>
+    </header>
+
+    <!-- Architecture Flow Pipeline Indicator (From Lab Flowchart) -->
+    <nav class="pipeline-bar" aria-label="System Architecture Steps">
+        <div class="pipeline-step active" id="pipeStep1">
+            <span class="step-num">1</span>
+            <span class="step-name">Input Binary</span>
+        </div>
+        <div class="pipeline-arrow">➔</div>
+        <div class="pipeline-step active" id="pipeStep2">
+            <span class="step-num">2</span>
+            <span class="step-name">Technique & Encode</span>
+        </div>
+        <div class="pipeline-arrow">➔</div>
+        <div class="pipeline-step active" id="pipeStep3">
+            <span class="step-num">3</span>
+            <span class="step-name">Channel & NS-2</span>
+        </div>
+        <div class="pipeline-arrow">➔</div>
+        <div class="pipeline-step active" id="pipeStep4">
+            <span class="step-num">4</span>
+            <span class="step-name">Error Injection</span>
+        </div>
+        <div class="pipeline-arrow">➔</div>
+        <div class="pipeline-step active" id="pipeStep5">
+            <span class="step-num">5</span>
+            <span class="step-name">Receiver Verification</span>
+        </div>
+        <div class="pipeline-arrow">➔</div>
+        <div class="pipeline-step active" id="pipeStep6">
+            <span class="step-num">6</span>
+            <span class="step-name">Correction & Result</span>
+        </div>
+    </nav>
+
+    <!-- Main Workspace Container -->
+    <main class="app-layout">
+        <!-- Left Configuration & Transmitter Controls -->
+        <aside class="control-panel">
+            <!-- Card 1: Input Data Module -->
+            <section class="card module-card">
+                <div class="card-header">
+                    <span class="module-tag">Module 1</span>
+                    <h3>Input Data Module</h3>
+                </div>
+                <div class="form-group">
+                    <label for="inputBinary">Binary Data Message (0s & 1s):</label>
+                    <div class="input-with-cleaner">
+                        <input type="text" id="inputBinary" value="11010010" placeholder="Enter binary string..." spellcheck="false" autocomplete="off">
+                        <span class="bit-counter" id="bitCountBadge">8 bits</span>
+                    </div>
+                </div>
+
+                <!-- Presets & Text-to-Binary -->
+                <div class="presets-row">
+                    <span class="preset-label">Presets:</span>
+                    <button class="btn-chip" onclick="applyPreset('1011')">4-bit</button>
+                    <button class="btn-chip active" onclick="applyPreset('11010010')">8-bit</button>
+                    <button class="btn-chip" onclick="applyPreset('101100101101')">12-bit</button>
+                    <button class="btn-chip" onclick="applyPreset('1010110001011101')">16-bit</button>
+                </div>
+
+                <div class="ascii-helper-row">
+                    <input type="text" id="asciiInput" placeholder="ASCII Text (e.g. NET)" maxlength="6">
+                    <button class="btn-secondary" onclick="convertTextToBinary()">Convert to Bits</button>
+                </div>
+            </section>
+
+            <!-- Card 2: Error Control Technique Selection -->
+            <section class="card module-card">
+                <div class="card-header">
+                    <span class="module-tag">Modules 2–6</span>
+                    <h3>Select Technique</h3>
+                </div>
+                <div class="tech-options">
+                    <label class="radio-card active">
+                        <input type="radio" name="technique" value="parity" checked onchange="onTechniqueChange()">
+                        <div class="radio-content">
+                            <span class="tech-title">1D Parity Check</span>
+                            <span class="tech-desc">Even or Odd parity redundancy bit</span>
+                        </div>
+                    </label>
+
+                    <label class="radio-card">
+                        <input type="radio" name="technique" value="parity2d" onchange="onTechniqueChange()">
+                        <div class="radio-content">
+                            <span class="tech-title">2D Parity Check (Matrix)</span>
+                            <span class="tech-desc">Row & Column parities; pinpoints error</span>
+                        </div>
+                    </label>
+
+                    <label class="radio-card">
+                        <input type="radio" name="technique" value="hamming" onchange="onTechniqueChange()">
+                        <div class="radio-content">
+                            <span class="tech-title">Hamming Code</span>
+                            <span class="tech-desc">Error detection & single-bit correction</span>
+                        </div>
+                    </label>
+
+                    <label class="radio-card">
+                        <input type="radio" name="technique" value="checksum" onchange="onTechniqueChange()">
+                        <div class="radio-content">
+                            <span class="tech-title">Internet Checksum</span>
+                            <span class="tech-desc">1's complement binary addition</span>
+                        </div>
+                    </label>
+
+                    <label class="radio-card">
+                        <input type="radio" name="technique" value="crc" onchange="onTechniqueChange()">
+                        <div class="radio-content">
+                            <span class="tech-title">Cyclic Redundancy Check (CRC)</span>
+                            <span class="tech-desc">Modulo-2 XOR polynomial division</span>
+                        </div>
+                    </label>
+                </div>
+
+                <!-- Dynamic Technique Parameters -->
+                <div class="params-subcard" id="techParamsContainer">
+                    <!-- Populated by JavaScript based on selected technique -->
+                </div>
+
+                <button class="btn-primary" id="btnEncode" onclick="triggerEncoding()">
+                    <span>⚡ Step 1 & 2: Encode & Generate Redundancy</span>
+                </button>
+            </section>
+
+            <!-- Card 3: Transmitter & Error Injection Module -->
+            <section class="card module-card">
+                <div class="card-header">
+                    <span class="module-tag">Module 7</span>
+                    <h3>Transmitter & Error Injection</h3>
+                </div>
+                <p class="section-hint">Click on any bit to toggle/flip it and inject a channel transmission error:</p>
+
+                <!-- Interactive Bits Canvas -->
+                <div class="bits-track" id="bitsTrack">
+                    <!-- Populated with clickable bit buttons -->
+                </div>
+
+                <div class="error-action-buttons">
+                    <button class="btn-action warn" onclick="injectRandomError()">
+                        <span>🎲 Flip 1 Random Bit</span>
+                    </button>
+                    <button class="btn-action danger" onclick="injectBurstError()">
+                        <span>⚡ Inject Burst (3 bits)</span>
+                    </button>
+                    <button class="btn-action success" onclick="clearChannelErrors()">
+                        <span>✓ Clean (No Error)</span>
+                    </button>
+                </div>
+
+                <!-- Channel Simulator Selection -->
+                <div class="channel-select-box">
+                    <span class="box-title">Communication Channel:</span>
+                    <div class="channel-modes">
+                        <label class="chan-mode active">
+                            <input type="radio" name="chanMode" value="direct" checked>
+                            <span>Direct Channel</span>
+                        </label>
+                        <label class="chan-mode">
+                            <input type="radio" name="chanMode" value="ns2">
+                            <span>NS-2 Simulator (Link with ErrorModel)</span>
+                        </label>
+                    </div>
+                </div>
+
+                <button class="btn-success" id="btnVerify" onclick="triggerVerification()">
+                    <span>🔍 Step 4: Transmit & Verify at Receiver</span>
+                </button>
+            </section>
+        </aside>
+
+        <!-- Right Side: Visualization, Trace & NS-2 Console -->
+        <section class="display-panel">
+            <!-- Tabs Bar -->
+            <div class="tabs-header">
+                <button class="tab-btn active" data-tab="tab-results">📊 Transmission & Results</button>
+                <button class="tab-btn" data-tab="tab-visualizer">🔬 Detailed Algorithm Visualizer</button>
+                <button class="tab-btn" data-tab="tab-ns2">🌐 NS-2 Discrete Event Simulation</button>
+                <button class="tab-btn" data-tab="tab-flow">📜 Lab Architecture Flow Log</button>
+            </div>
+
+            <!-- Tab 1: Transmission & Results -->
+            <div class="tab-content active" id="tab-results">
+                <!-- Large Status Banner -->
+                <div class="status-banner ready" id="statusBanner">
+                    <div class="status-icon" id="statusIcon">●</div>
+                    <div class="status-text">
+                        <h2 id="statusTitle">READY ON CHANNEL</h2>
+                        <p id="statusDesc">Frame encoded. Modify bits to simulate channel noise or click 'Transmit & Verify'.</p>
+                    </div>
+                </div>
+
+                <!-- 4 Metrics Cards -->
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <span class="metric-title">Original Data</span>
+                        <div class="metric-value font-mono" id="metricOrig">-</div>
+                        <span class="metric-sub" id="metricOrigSub">Source input</span>
+                    </div>
+
+                    <div class="metric-card">
+                        <span class="metric-title">Transmitted Frame</span>
+                        <div class="metric-value font-mono" id="metricTx">-</div>
+                        <span class="metric-sub" id="metricTxSub">Encoded + Redundancy</span>
+                    </div>
+
+                    <div class="metric-card">
+                        <span class="metric-title">Received at Sink</span>
+                        <div class="metric-value font-mono" id="metricRx">-</div>
+                        <span class="metric-sub" id="metricRxSub">After channel noise</span>
+                    </div>
+
+                    <div class="metric-card highlight">
+                        <span class="metric-title">Corrected / Recovered</span>
+                        <div class="metric-value font-mono" id="metricCorrected">-</div>
+                        <span class="metric-sub" id="metricCorrectedSub">Receiver recovery</span>
+                    </div>
+                </div>
+
+                <!-- Real-Time Transmission Stream Visualizer -->
+                <div class="stream-card">
+                    <div class="card-header">
+                        <h3>Channel Transmission Visualization</h3>
+                        <span class="badge-pill" id="errorCountBadge">0 Bits Flipped</span>
+                    </div>
+                    <div class="transmission-visual-box">
+                        <div class="tx-node">
+                            <div class="node-icon tx">Tx</div>
+                            <span>Transmitter</span>
+                        </div>
+                        <div class="channel-link">
+                            <div class="wire-line"></div>
+                            <div class="data-packet-anim" id="packetAnim">
+                                <span id="packetBitPreview">1101...</span>
+                            </div>
+                            <div class="channel-noise-indicator" id="noiseBadge">Channel Noise: Active</div>
+                        </div>
+                        <div class="rx-node">
+                            <div class="node-icon rx">Rx</div>
+                            <span>Receiver</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Step Breakdown -->
+                <div class="log-card">
+                    <div class="card-header">
+                        <h3>Summary & Diagnosis</h3>
+                    </div>
+                    <div class="terminal-view" id="quickSummaryView">
+                        <pre id="quickSummaryContent">Awaiting transmission...</pre>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab 2: Detailed Algorithm Visualizer -->
+            <div class="tab-content" id="tab-visualizer">
+                <div class="algo-view-card">
+                    <div class="card-header">
+                        <h3 id="visAlgoTitle">Algorithm Visualizer</h3>
+                        <span class="badge-pill" id="visAlgoBadge">Step-by-Step</span>
+                    </div>
+                    <!-- Dynamic Algorithm Content (2D Grid, Hamming positions table, CRC Modulo-2 division, Checksum steps) -->
+                    <div id="visAlgoContent" class="vis-body">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab 3: NS-2 Discrete Event Simulation -->
+            <div class="tab-content" id="tab-ns2">
+                <div class="ns2-control-card">
+                    <div class="card-header">
+                        <div>
+                            <h3>Network Simulator 2 (NS-2) Channel Simulation</h3>
+                            <p class="header-sub">Simulates packet transmission across a duplex network link with an ErrorModel</p>
+                        </div>
+                        <span class="badge-pill success" id="ns2TabStatusBadge">NS-2 Ready</span>
+                    </div>
+
+                    <div class="ns2-params-grid">
+                        <div class="param-item">
+                            <label for="ns2ErrRate">Channel Error Rate (Loss Probability):</label>
+                            <div class="slider-row">
+                                <input type="range" id="ns2ErrRate" min="0.0" max="0.8" step="0.05" value="0.2" oninput="updateNs2SliderVal(this.value)">
+                                <span class="slider-val" id="ns2SliderVal">0.20 (20%)</span>
+                            </div>
+                        </div>
+
+                        <div class="param-item">
+                            <label for="ns2PacketCount">Number of Packets:</label>
+                            <input type="number" id="ns2PacketCount" min="5" max="50" value="15">
+                        </div>
+
+                        <div class="param-item">
+                            <label>&nbsp;</label>
+                            <button class="btn-primary" id="btnExecuteNs2" onclick="executeNs2Simulation()">
+                                <span>▶ Run Real NS-2 Simulation (WSL)</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- NS-2 Statistics Cards -->
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <span class="metric-title">Packets Queued (+)</span>
+                        <div class="metric-value font-mono" id="ns2StatSent">-</div>
+                        <span class="metric-sub">Transmitted by Node 0</span>
+                    </div>
+
+                    <div class="metric-card danger">
+                        <span class="metric-title">Corrupted / Dropped (d)</span>
+                        <div class="metric-value font-mono" id="ns2StatDropped">-</div>
+                        <span class="metric-sub">Channel ErrorModel drop</span>
+                    </div>
+
+                    <div class="metric-card success">
+                        <span class="metric-title">Received at Sink (r)</span>
+                        <div class="metric-value font-mono" id="ns2StatReceived">-</div>
+                        <span class="metric-sub">Arrived at Node 1</span>
+                    </div>
+
+                    <div class="metric-card warn">
+                        <span class="metric-title">Packet Error Rate (PER)</span>
+                        <div class="metric-value font-mono" id="ns2StatLoss">-</div>
+                        <span class="metric-sub">Observed channel loss</span>
+                    </div>
+                </div>
+
+                <!-- Trace Events Table -->
+                <div class="log-card">
+                    <div class="card-header">
+                        <h3>NS-2 Trace File Events Timeline (.tr)</h3>
+                        <span class="badge-pill" id="traceCountBadge">0 Events</span>
+                    </div>
+                    <div class="trace-table-container">
+                        <table class="trace-table" id="ns2TraceTable">
+                            <thead>
+                                <tr>
+                                    <th>Event</th>
+                                    <th>Time (s)</th>
+                                    <th>Src Node</th>
+                                    <th>Dst Node</th>
+                                    <th>Pkt ID</th>
+                                    <th>Description</th>
+                                </tr>
+                            </thead>
+                            <tbody id="ns2TraceTableBody">
+                                <tr>
+                                    <td colspan="6" class="text-center text-muted">Click "Run Real NS-2 Simulation" to generate trace events.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab 4: Lab Architecture Flow Log -->
+            <div class="tab-content" id="tab-flow">
+                <div class="log-card full-height">
+                    <div class="card-header">
+                        <h3>Full Architecture Flow Log (Matches Submission PDF)</h3>
+                        <button class="btn-chip" onclick="copyFlowLog()">Copy Log</button>
+                    </div>
+                    <div class="terminal-view">
+                        <pre id="flowLogContent">System initializing...</pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Team Details Modal -->
+    <div class="modal-overlay" id="teamModal">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h2>Project Team Details</h2>
+                <button class="btn-close" id="btnCloseModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p class="modal-project-title">Interactive Network Error Detection and Correction Simulator using Parity, Hamming Code, Checksum and CRC</p>
+                <div class="team-cards">
+                    <div class="team-member-card">
+                        <div class="member-avatar">AY</div>
+                        <div class="member-info">
+                            <h4>AMAN KUMAR YADAV</h4>
+                        </div>
+                    </div>
+                    <div class="team-member-card">
+                        <div class="member-avatar">PB</div>
+                        <div class="member-info">
+                            <h4>PRATIK BHARADBHUNJE</h4>
+                        </div>
+                    </div>
+                    <div class="team-member-card">
+                        <div class="member-avatar">DG</div>
+                        <div class="member-info">
+                            <h4>DEVRISHI GADIA</h4>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-meta">
+                    <p><strong>Integrated Technologies:</strong> Python, Tkinter, NS-2 (Network Simulator 2), Web Simulator</p>
+                    <p><strong>Architecture Modules:</strong> 1D/2D Parity, Hamming Code (n,k), Internet Checksum, CRC (Modulo-2 XOR), NS-2 Channel Modeling</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Persistent Bottom Footer Showing Team Names on Every Page -->
+    <footer class="app-footer">
+        <div class="footer-inner">
+            <div class="footer-title">
+                <span class="footer-dot"></span>
+                <span class="footer-label">PROJECT TEAM</span>
+            </div>
+            <div class="footer-team-grid">
+                <div class="team-pill">
+                    <span class="pill-avatar">AY</span>
+                    <span class="pill-name">AMAN KUMAR YADAV</span>
+                </div>
+                <div class="team-pill">
+                    <span class="pill-avatar">PB</span>
+                    <span class="pill-name">PRATIK BHARADBHUNJE</span>
+                </div>
+                <div class="team-pill">
+                    <span class="pill-avatar">DG</span>
+                    <span class="pill-name">DEVRISHI GADIA</span>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Script -->
+    <script src="app.js"></script>
+</body>
+</html>
