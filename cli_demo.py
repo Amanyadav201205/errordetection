@@ -1,7 +1,7 @@
 """
 Command-Line Interface (CLI) Demonstration
 Interactive Network Error Detection and Correction Simulator
-BCSE308P - Computer Networks Lab
+Computer Networks Lab Project
 """
 
 import sys
@@ -20,9 +20,9 @@ def print_separator(title=""):
         print("=" * 65)
 
 def main():
-    print_separator("COMPUTER NETWORKS LAB PROJECT (BCSE308P)")
+    print_separator("COMPUTER NETWORKS LAB PROJECT")
     print("Project: Interactive Network Error Detection & Correction Simulator")
-    print("Team: Aman Kumar Yadav, Pratik Bharadbhunje, Devrishi Gadia")
+    print("Team: AMAN KUMAR YADAV, PRATIK BHARADBHUNJE, DEVRISHI GADIA")
     
     # 1. Parity Check
     print_separator("DEMO 1: PARITY CHECK (EVEN PARITY)")

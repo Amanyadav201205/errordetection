@@ -1,6 +1,6 @@
 """
 Interactive Network Error Detection and Correction Simulator
-BCSE308P - Computer Networks Lab
+Computer Networks Lab Project
 Modules package initialization
 """
 from .parity import encode_parity, verify_parity

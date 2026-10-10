@@ -1,6 +1,6 @@
 /**
  * Interactive Network Error Detection and Correction Simulator
- * Client Application Logic (BCSE308P)
+ * Client Application Logic - Computer Networks Lab Project
  */
 
 // Application State
@@ -55,16 +55,49 @@ function switchMainView(view) {
     }
 }
 
+function openTeamModal() {
+    const modal = document.getElementById("teamModal");
+    if (modal) modal.classList.add("open");
+}
+
+function closeTeamModal() {
+    const modal = document.getElementById("teamModal");
+    if (modal) modal.classList.remove("open");
+}
+
+function scrollToSection(id) {
+    const el = document.getElementById(id);
+    if (el) el.scrollIntoView({ behavior: "smooth" });
+}
+
+function launchStepInLab(stepNum) {
+    switchMainView("lab");
+    setTimeout(() => {
+        handleStepClick(stepNum);
+    }, 120);
+}
+
 function launchTechniqueInLab(tech) {
     switchMainView("lab");
+    setTimeout(() => {
+        selectTechniqueAndScroll(tech);
+    }, 120);
+}
+
+function selectTechniqueAndScroll(tech) {
     if (tech === "ns2") {
         const chanMode = document.querySelector('input[name="chanMode"][value="ns2"]');
         if (chanMode) {
             chanMode.checked = true;
             onChanModeChange();
         }
-        const ns2Tab = document.querySelector('.tab-btn[data-tab="tab-ns2"]');
-        if (ns2Tab) ns2Tab.click();
+        switchTab("tab-ns2");
+        const card = document.getElementById("cardChannel");
+        if (card) {
+            card.scrollIntoView({ behavior: "smooth", block: "center" });
+            card.classList.add("card-highlight");
+            setTimeout(() => card.classList.remove("card-highlight"), 1800);
+        }
     } else {
         const radio = document.querySelector(`input[name="technique"][value="${tech}"]`);
         if (radio) {
@@ -73,9 +106,28 @@ function launchTechniqueInLab(tech) {
         }
         const card = document.getElementById("cardTechnique");
         if (card) {
-            setTimeout(() => card.scrollIntoView({ behavior: "smooth", block: "center" }), 100);
+            card.scrollIntoView({ behavior: "smooth", block: "center" });
+            card.classList.add("card-highlight");
+            setTimeout(() => card.classList.remove("card-highlight"), 1800);
         }
     }
+}
+
+function switchTab(targetId) {
+    document.querySelectorAll(".tab-btn").forEach(b => {
+        if (b.getAttribute("data-tab") === targetId) {
+            b.classList.add("active");
+        } else {
+            b.classList.remove("active");
+        }
+    });
+    document.querySelectorAll(".tab-content").forEach(c => {
+        if (c.id === targetId) {
+            c.classList.add("active");
+        } else {
+            c.classList.remove("active");
+        }
+    });
 }
 
 // Initialize Application
@@ -112,15 +164,19 @@ function initEventListeners() {
 
     // Team Modal
     const modal = document.getElementById("teamModal");
-    document.getElementById("btnTeamModal").addEventListener("click", () => {
-        modal.classList.add("open");
-    });
-    document.getElementById("btnCloseModal").addEventListener("click", () => {
-        modal.classList.remove("open");
-    });
-    modal.addEventListener("click", (e) => {
-        if (e.target === modal) modal.classList.remove("open");
-    });
+    const btnTeam = document.getElementById("btnTeamModal");
+    const btnClose = document.getElementById("btnCloseModal");
+    if (btnTeam && modal) {
+        btnTeam.addEventListener("click", () => modal.classList.add("open"));
+    }
+    if (btnClose && modal) {
+        btnClose.addEventListener("click", () => modal.classList.remove("open"));
+    }
+    if (modal) {
+        modal.addEventListener("click", (e) => {
+            if (e.target === modal) modal.classList.remove("open");
+        });
+    }
 }
 
 // Check Backend & NS-2 Status
@@ -135,17 +191,23 @@ async function checkSystemStatus() {
             const data = await res.json();
             if (data.ns2 && data.ns2.available) {
                 state.ns2Available = true;
-                badge.classList.add("online");
-                text.textContent = "NS-2 Engine: Connected (WSL)";
+                if (badge) badge.classList.add("online");
+                if (text) text.textContent = "NS-2 Engine: Connected (WSL)";
                 if (tabBadge) tabBadge.textContent = "NS-2 Active (/usr/bin/ns)";
             } else {
-                badge.classList.remove("online");
-                text.textContent = "NS-2 Engine: Standby (Fallback Mode)";
+                if (badge) badge.classList.remove("online");
+                if (text) text.textContent = "NS-2 Engine: Standby (Fallback Mode)";
                 if (tabBadge) tabBadge.textContent = "Fallback Channel";
             }
+        } else {
+            if (badge) badge.classList.remove("online");
+            if (text) text.textContent = "NS-2 Engine: Standby (Web Mode)";
+            if (tabBadge) tabBadge.textContent = "Web Simulation Engine";
         }
     } catch (err) {
-        text.textContent = "NS-2 Engine: Standby";
+        if (badge) badge.classList.remove("online");
+        if (text) text.textContent = "NS-2 Engine: Standby (Web Mode)";
+        if (tabBadge) tabBadge.textContent = "Web Simulation Engine";
     }
 }
 
@@ -1372,4 +1434,34 @@ function clientSideNs2Sim(frame, errRate, numPkts) {
         events
     };
 }
+
+// Global Export to Window (Guarantees all onclick handlers always find their function)
+if (typeof window !== "undefined") {
+    window.switchMainView = switchMainView;
+    window.launchTechniqueInLab = launchTechniqueInLab;
+    window.launchStepInLab = launchStepInLab;
+    window.selectTechniqueAndScroll = selectTechniqueAndScroll;
+    window.handleStepClick = handleStepClick;
+    window.applyPreset = applyPreset;
+    window.convertTextToBinary = convertTextToBinary;
+    window.triggerEncoding = triggerEncoding;
+    window.injectRandomError = injectRandomError;
+    window.injectBurstError = injectBurstError;
+    window.clearChannelErrors = clearChannelErrors;
+    window.triggerVerification = triggerVerification;
+    window.executeNs2Simulation = executeNs2Simulation;
+    window.switchTab = switchTab;
+    window.openTeamModal = openTeamModal;
+    window.closeTeamModal = closeTeamModal;
+    window.scrollToSection = scrollToSection;
+    window.copyFlowLog = copyFlowLog;
+    window.showToast = showToast;
+    window.onTechniqueChange = onTechniqueChange;
+    window.onChanModeChange = onChanModeChange;
+    window.setParityType = setParityType;
+    window.setP2dDim = setP2dDim;
+    window.setBlockSize = setBlockSize;
+    window.onCrcPresetChange = onCrcPresetChange;
+}
+
 

@@ -2228,12 +2228,41 @@ body {
     flex: 1;
     min-width: 160px;
     text-align: center;
-    transition: all 0.2s ease;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+    user-select: none;
+    position: relative;
 }
 
 .flow-step-card:hover {
     border-color: var(--color-cyan);
-    transform: translateY(-2px);
+    transform: translateY(-4px);
+    box-shadow: 0 10px 25px -5px rgba(56, 189, 248, 0.3);
+    background: rgba(30, 41, 59, 0.95);
+}
+
+.flow-step-card:active {
+    transform: scale(0.97);
+}
+
+.step-card-action {
+    display: inline-block;
+    margin-top: 10px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: #38bdf8;
+    background: rgba(56, 189, 248, 0.12);
+    padding: 4px 10px;
+    border-radius: 9999px;
+    border: 1px solid rgba(56, 189, 248, 0.3);
+    transition: all 0.2s ease;
+}
+
+.flow-step-card:hover .step-card-action {
+    background: rgba(56, 189, 248, 0.3);
+    border-color: #38bdf8;
+    color: #ffffff;
+    box-shadow: 0 0 10px rgba(56, 189, 248, 0.5);
 }
 
 .flow-number {

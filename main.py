@@ -1,11 +1,11 @@
 """
 Interactive Network Error Detection and Correction Simulator
 =============================================================
-Course: BCSE308P - Computer Networks Lab
+Computer Networks Lab Project
 Team Members:
-  - AMAN KUMAR YADAV (24BCE0839)
-  - PRATIK BHARADBHUNJE (24BCE2318)
-  - DEVRISHI GADIA (24BCT0212)
+  - AMAN KUMAR YADAV
+  - PRATIK BHARADBHUNJE
+  - DEVRISHI GADIA
 
 Features:
   1. Input Data Module (Binary validation, presets, ASCII text conversion)

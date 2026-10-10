@@ -1,13 +1,11 @@
 # Interactive Network Error Detection and Correction Simulator
 
-**Course:** BCSE308P – Computer Networks Lab  
-**Class Number:** VL2026270103128  
-**Semester:** Fall Semester 2026–27  
+**Computer Networks Lab Project**  
 
 ### Team Details
-- **Team Member 1:** AMAN KUMAR YADAV (Reg. No: 24BCE0839)
-- **Team Member 2:** PRATIK BHARADBHUNJE (Reg. No: 24BCE2318)
-- **Team Member 3:** DEVRISHI GADIA (Reg. No: 24BCT0212)
+- **AMAN KUMAR YADAV**
+- **PRATIK BHARADBHUNJE**
+- **DEVRISHI GADIA**
 
 ---
 

@@ -1,6 +1,6 @@
 # ======================================================================
 # Network Simulator 2 (NS-2) - Error Detection and Channel Simulation
-# Course: BCSE308P - Computer Networks Lab
+# Computer Networks Lab Project
 # Project: Interactive Network Error Detection and Correction Simulator
 # ======================================================================
 

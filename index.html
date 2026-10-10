@@ -8,9 +8,86 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=3.0">
+    <link rel="stylesheet" href="style.css?v=4.0">
 </head>
 <body>
+    <!-- Inline Bulletproof Navigation & Lab Action Handlers -->
+    <script>
+        function switchMainView(view) {
+            const homeView = document.getElementById("viewHome");
+            const labView = document.getElementById("viewLab");
+            const btnHome = document.getElementById("btnNavHome");
+            const btnLab = document.getElementById("btnNavLab");
+
+            if (view === "home") {
+                if (homeView) homeView.style.display = "block";
+                if (labView) labView.style.display = "none";
+                if (btnHome) btnHome.classList.add("active");
+                if (btnLab) btnLab.classList.remove("active");
+                window.scrollTo({ top: 0, behavior: "smooth" });
+            } else {
+                if (homeView) homeView.style.display = "none";
+                if (labView) labView.style.display = "block";
+                if (btnHome) btnHome.classList.remove("active");
+                if (btnLab) btnLab.classList.add("active");
+                window.scrollTo({ top: 0, behavior: "smooth" });
+            }
+        }
+
+        function openTeamModal() {
+            const modal = document.getElementById("teamModal");
+            if (modal) modal.classList.add("open");
+        }
+
+        function closeTeamModal() {
+            const modal = document.getElementById("teamModal");
+            if (modal) modal.classList.remove("open");
+        }
+
+        function scrollToSection(id) {
+            const el = document.getElementById(id);
+            if (el) el.scrollIntoView({ behavior: "smooth" });
+        }
+
+        function launchStepInLab(stepNum) {
+            switchMainView("lab");
+            setTimeout(() => {
+                if (typeof handleStepClick === "function") {
+                    handleStepClick(stepNum);
+                }
+            }, 120);
+        }
+
+        function launchTechniqueInLab(tech) {
+            switchMainView("lab");
+            setTimeout(() => {
+                if (typeof selectTechniqueAndScroll === "function") {
+                    selectTechniqueAndScroll(tech);
+                } else if (typeof onTechniqueChange === "function") {
+                    const r = document.querySelector(`input[name="technique"][value="${tech}"]`);
+                    if (r) { r.checked = true; onTechniqueChange(); }
+                }
+            }, 120);
+        }
+
+        function switchTab(targetId) {
+            document.querySelectorAll(".tab-btn").forEach(b => {
+                if (b.getAttribute("data-tab") === targetId) {
+                    b.classList.add("active");
+                } else {
+                    b.classList.remove("active");
+                }
+            });
+            document.querySelectorAll(".tab-content").forEach(c => {
+                if (c.id === targetId) {
+                    c.classList.add("active");
+                } else {
+                    c.classList.remove("active");
+                }
+            });
+        }
+    </script>
+
     <!-- Top Navigation Header -->
     <header class="app-header">
         <div class="header-left">
@@ -39,9 +116,9 @@
         <div class="header-right">
             <div class="ns2-badge" id="ns2EngineBadge">
                 <span class="badge-dot pulse"></span>
-                <span id="ns2EngineText">Checking NS-2 Engine...</span>
+                <span id="ns2EngineText">NS-2 Engine: Standby</span>
             </div>
-            <button class="team-btn" id="btnTeamModal">Team Details</button>
+            <button class="team-btn" id="btnTeamModal" onclick="openTeamModal()">Team Details</button>
         </div>
     </header>
 
@@ -294,40 +371,46 @@
             </div>
 
             <div class="flow-steps-grid">
-                <div class="flow-step-card">
+                <div class="flow-step-card" role="button" tabindex="0" onclick="launchStepInLab(1)" title="Step 1: Input Binary Data (Click to open in Lab)">
                     <span class="flow-number">01</span>
                     <h4>Input Binary</h4>
                     <p>Validation, presets (4, 8, 12, 16 bits), or ASCII text converter.</p>
+                    <span class="step-card-action">Open Step 1 ➔</span>
                 </div>
                 <div class="flow-step-arrow">➔</div>
-                <div class="flow-step-card">
+                <div class="flow-step-card" role="button" tabindex="0" onclick="launchStepInLab(2)" title="Step 2: Encode & Redundancy (Click to open in Lab)">
                     <span class="flow-number">02</span>
                     <h4>Encode & Redundancy</h4>
                     <p>Generates check bits, syndrome matrices, and transmitted codeword.</p>
+                    <span class="step-card-action">Open Step 2 ➔</span>
                 </div>
                 <div class="flow-step-arrow">➔</div>
-                <div class="flow-step-card">
+                <div class="flow-step-card" role="button" tabindex="0" onclick="launchStepInLab(3)" title="Step 3: Channel & NS-2 (Click to open in Lab)">
                     <span class="flow-number">03</span>
                     <h4>Channel & NS-2</h4>
                     <p>Physical link transmission with optional NS-2 ErrorModel loss.</p>
+                    <span class="step-card-action">Open Step 3 ➔</span>
                 </div>
                 <div class="flow-step-arrow">➔</div>
-                <div class="flow-step-card">
+                <div class="flow-step-card" role="button" tabindex="0" onclick="launchStepInLab(4)" title="Step 4: Error Injection (Click to open in Lab)">
                     <span class="flow-number">04</span>
                     <h4>Error Injection</h4>
                     <p>Click-to-flip bits, random 1-bit noise, or 3-bit burst corruption.</p>
+                    <span class="step-card-action">Open Step 4 ➔</span>
                 </div>
                 <div class="flow-step-arrow">➔</div>
-                <div class="flow-step-card">
+                <div class="flow-step-card" role="button" tabindex="0" onclick="launchStepInLab(5)" title="Step 5: Receiver Verify (Click to open in Lab)">
                     <span class="flow-number">05</span>
                     <h4>Receiver Verify</h4>
                     <p>Syndrome calculation, 1's complement check, or XOR division verification.</p>
+                    <span class="step-card-action">Open Step 5 ➔</span>
                 </div>
                 <div class="flow-step-arrow">➔</div>
-                <div class="flow-step-card">
+                <div class="flow-step-card" role="button" tabindex="0" onclick="launchStepInLab(6)" title="Step 6: Recovery & Result (Click to open in Lab)">
                     <span class="flow-number">06</span>
                     <h4>Recovery & Result</h4>
                     <p>Automated bit correction, diagnostic breakdown, and step-by-step visualizer.</p>
+                    <span class="step-card-action">Open Step 6 ➔</span>
                 </div>
             </div>
         </section>
@@ -797,6 +880,6 @@
     <div id="toastContainer" class="toast-container" aria-live="polite"></div>
 
     <!-- Script -->
-    <script src="app.js?v=3.0"></script>
+    <script src="app.js?v=4.0"></script>
 </body>
 </html>

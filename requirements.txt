@@ -1,5 +1,5 @@
 # Python Requirements for Interactive Network Error Detection and Correction Simulator
-# Course: BCSE308P - Computer Networks Lab
+# Computer Networks Lab Project
 
 # Note: The application uses the Python Standard Library (Tkinter, Subprocess, Math, Random)
 # No external pip dependencies are required to run the application!
