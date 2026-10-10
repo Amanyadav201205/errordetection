@@ -31,6 +31,53 @@ const CRC_PRESETS = {
     "CRC-32 (IEEE 802.3)": "100000100110000010001110110110111"
 };
 
+// =============================================================
+// MAIN VIEW NAVIGATION (FRONT COVER PAGE vs SIMULATOR LAB)
+// =============================================================
+function switchMainView(view) {
+    const homeView = document.getElementById("viewHome");
+    const labView = document.getElementById("viewLab");
+    const btnHome = document.getElementById("btnNavHome");
+    const btnLab = document.getElementById("btnNavLab");
+
+    if (view === "home") {
+        if (homeView) homeView.style.display = "block";
+        if (labView) labView.style.display = "none";
+        if (btnHome) btnHome.classList.add("active");
+        if (btnLab) btnLab.classList.remove("active");
+        window.scrollTo({ top: 0, behavior: "smooth" });
+    } else {
+        if (homeView) homeView.style.display = "none";
+        if (labView) labView.style.display = "block";
+        if (btnHome) btnHome.classList.remove("active");
+        if (btnLab) btnLab.classList.add("active");
+        window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+}
+
+function launchTechniqueInLab(tech) {
+    switchMainView("lab");
+    if (tech === "ns2") {
+        const chanMode = document.querySelector('input[name="chanMode"][value="ns2"]');
+        if (chanMode) {
+            chanMode.checked = true;
+            onChanModeChange();
+        }
+        const ns2Tab = document.querySelector('.tab-btn[data-tab="tab-ns2"]');
+        if (ns2Tab) ns2Tab.click();
+    } else {
+        const radio = document.querySelector(`input[name="technique"][value="${tech}"]`);
+        if (radio) {
+            radio.checked = true;
+            onTechniqueChange();
+        }
+        const card = document.getElementById("cardTechnique");
+        if (card) {
+            setTimeout(() => card.scrollIntoView({ behavior: "smooth", block: "center" }), 100);
+        }
+    }
+}
+
 // Initialize Application
 document.addEventListener("DOMContentLoaded", () => {
     initEventListeners();
@@ -103,8 +150,17 @@ async function checkSystemStatus() {
 }
 
 // Preset helpers
-function applyPreset(bits) {
+function applyPreset(bits, el) {
     document.querySelectorAll(".presets-row .btn-chip").forEach(c => c.classList.remove("active"));
+    if (el && el.classList) {
+        el.classList.add("active");
+    } else {
+        document.querySelectorAll(".presets-row .btn-chip").forEach(c => {
+            if (c.textContent.trim() === `${bits.length}-bit` || c.getAttribute("onclick")?.includes(`'${bits}'`)) {
+                c.classList.add("active");
+            }
+        });
+    }
     const input = document.getElementById("inputBinary");
     input.value = bits;
     state.inputData = bits;
@@ -120,6 +176,159 @@ function convertTextToBinary() {
         binary += txt.charCodeAt(i).toString(2).padStart(8, '0');
     }
     applyPreset(binary);
+}
+
+// Channel Mode Radio Change
+function onChanModeChange() {
+    const selected = document.querySelector('input[name="chanMode"]:checked')?.value || "direct";
+    const directLabel = document.getElementById("chanModeDirectLabel");
+    const ns2Label = document.getElementById("chanModeNs2Label");
+    if (directLabel) directLabel.classList.toggle("active", selected === "direct");
+    if (ns2Label) ns2Label.classList.toggle("active", selected === "ns2");
+
+    if (selected === "ns2") {
+        const ns2Tab = document.querySelector('.tab-btn[data-tab="tab-ns2"]');
+        if (ns2Tab) ns2Tab.click();
+    }
+}
+
+// Architecture Flow Pipeline Step Manager
+function updatePipelineSteps(stage) {
+    for (let i = 1; i <= 6; i++) {
+        const step = document.getElementById(`pipeStep${i}`);
+        const num = document.getElementById(`pipeNum${i}`);
+        if (!step || !num) continue;
+        step.classList.remove("completed", "current", "active");
+
+        if (stage === 1) {
+            if (i === 1) { step.classList.add("current"); num.textContent = "1"; }
+            else if (i === 2) { step.classList.add("active"); num.textContent = "2"; }
+            else { num.textContent = String(i); }
+        } else if (stage === 2) {
+            // Step 1 & 2 Completed (Encoded)
+            if (i === 1 || i === 2) {
+                step.classList.add("completed");
+                num.textContent = "✓";
+            } else if (i === 3 || i === 4) {
+                step.classList.add("current");
+                num.textContent = String(i);
+            } else {
+                num.textContent = String(i);
+            }
+        } else if (stage === 3) {
+            // Channel & NS-2
+            if (i <= 2) { step.classList.add("completed"); num.textContent = "✓"; }
+            else if (i === 3) { step.classList.add("current"); num.textContent = "3"; }
+            else if (i === 4) { step.classList.add("active"); num.textContent = "4"; }
+            else { num.textContent = String(i); }
+        } else if (stage === 4) {
+            // Error Injection active
+            if (i <= 2) { step.classList.add("completed"); num.textContent = "✓"; }
+            else if (i === 4) { step.classList.add("current"); num.textContent = "4"; }
+            else if (i === 5) { step.classList.add("active"); num.textContent = "5"; }
+            else { num.textContent = String(i); }
+        } else if (stage >= 5) {
+            // Verification and Correction completed
+            if (i <= 5) {
+                step.classList.add("completed");
+                num.textContent = "✓";
+            }
+            if (i === 6) {
+                step.classList.add("completed");
+                num.textContent = "✓";
+            }
+        }
+    }
+// Toast Notification Manager
+function showToast(title, desc, type = "info", icon = "●") {
+    const container = document.getElementById("toastContainer");
+    if (!container) return;
+
+    const toast = document.createElement("div");
+    toast.className = `toast-msg ${type}`;
+    toast.innerHTML = `
+        <div class="toast-icon">${icon}</div>
+        <div class="toast-text">
+            <span class="toast-title">${title}</span>
+            <span class="toast-desc">${desc}</span>
+        </div>
+    `;
+
+    container.appendChild(toast);
+
+    // Auto remove after 3s
+    setTimeout(() => {
+        if (toast.parentNode) {
+            toast.parentNode.removeChild(toast);
+        }
+    }, 3100);
+}
+
+// Pipeline Steps Interactive Click Handler with Rich Visual Feedback
+function handleStepClick(stepNum) {
+    // 1. Highlight the exact clicked step with radiant glowing ring
+    document.querySelectorAll(".pipeline-step").forEach(s => s.classList.remove("selected-step"));
+    const clicked = document.getElementById(`pipeStep${stepNum}`);
+    if (clicked) {
+        clicked.classList.add("selected-step");
+        setTimeout(() => clicked.classList.remove("selected-step"), 2500);
+    }
+
+    if (stepNum === 1) {
+        showToast("Step 1: Input Data Module", "Binary source message ready for editing.", "info", "📌");
+        const card = document.getElementById("cardInput");
+        if (card) {
+            card.scrollIntoView({ behavior: "smooth", block: "center" });
+            card.classList.add("card-highlight");
+            setTimeout(() => card.classList.remove("card-highlight"), 1800);
+        }
+        const inp = document.getElementById("inputBinary");
+        if (inp) { inp.focus(); inp.select(); }
+        updatePipelineSteps(1);
+    } else if (stepNum === 2) {
+        showToast("Step 2: Redundancy Encoding", "Generated check bits & transmitted codeword.", "success", "⚡");
+        const card = document.getElementById("cardTechnique");
+        if (card) {
+            card.scrollIntoView({ behavior: "smooth", block: "center" });
+            card.classList.add("card-highlight");
+            setTimeout(() => card.classList.remove("card-highlight"), 1800);
+        }
+        triggerEncoding();
+    } else if (stepNum === 3) {
+        showToast("Step 3: Network Channel & NS-2", "Link transmission modeling with packet error rate.", "info", "🌐");
+        const chanMode = document.querySelector('input[name="chanMode"][value="ns2"]');
+        if (chanMode) {
+            chanMode.checked = true;
+            onChanModeChange();
+        }
+        const ns2Tab = document.querySelector('.tab-btn[data-tab="tab-ns2"]');
+        if (ns2Tab) ns2Tab.click();
+        updatePipelineSteps(3);
+    } else if (stepNum === 4) {
+        showToast("Step 4: Channel Error Injection", "Click any bit below to flip it and simulate noise.", "warn", "🎯");
+        const card = document.getElementById("cardChannel");
+        if (card) {
+            card.scrollIntoView({ behavior: "smooth", block: "center" });
+            card.classList.add("card-highlight");
+            setTimeout(() => card.classList.remove("card-highlight"), 1800);
+        }
+        const track = document.getElementById("bitsTrack");
+        if (track) {
+            track.style.borderColor = "var(--color-warning)";
+            setTimeout(() => track.style.borderColor = "var(--border-color)", 1400);
+        }
+        updatePipelineSteps(4);
+    } else if (stepNum === 5) {
+        showToast("Step 5: Receiver Verification", "Transmitted across channel & checked at receiver sink.", "info", "🔍");
+        const resTab = document.querySelector('.tab-btn[data-tab="tab-results"]');
+        if (resTab) resTab.click();
+        triggerVerification();
+    } else if (stepNum === 6) {
+        showToast("Step 6: Diagnosis & Recovery", "Viewing mathematical syndrome & parity grid visualizer.", "success", "🔬");
+        const visTab = document.querySelector('.tab-btn[data-tab="tab-visualizer"]');
+        if (visTab) visTab.click();
+        updatePipelineSteps(6);
+    }
 }
 
 // Technique Radio Change
@@ -241,6 +450,19 @@ function onCrcPresetChange(val) {
 // STEP 1 & 2: ENCODING AND REDUNDANCY GENERATION
 // -------------------------------------------------------------
 async function triggerEncoding() {
+    // Dynamic button clicked feedback
+    const btnEnc = document.getElementById("btnEncode");
+    const txtEnc = document.getElementById("btnEncodeText");
+    if (btnEnc) {
+        btnEnc.classList.add("btn-completed");
+        if (txtEnc) txtEnc.innerHTML = "✓ Step 1 & 2: Encoded & Redundancy Generated!";
+        showToast("Step 1 & 2 Completed", "Frame encoded with check bits attached!", "success", "⚡");
+        setTimeout(() => {
+            btnEnc.classList.remove("btn-completed");
+            if (txtEnc) txtEnc.innerHTML = "⚡ Step 1 & 2: Re-Encode / Update Redundancy";
+        }, 2200);
+    }
+
     const payload = {
         data: state.inputData || "11010010",
         technique: state.technique,
@@ -280,6 +502,7 @@ async function triggerEncoding() {
     renderVisualizer(encResult, null);
     updateStatusBanner("ready", "READY ON CHANNEL", "Frame encoded. Modify bits to simulate channel noise or click 'Transmit & Verify'.");
     updateFlowLog(encResult, null);
+    updatePipelineSteps(2);
 }
 
 function updateMetricsOnEncode() {
@@ -326,30 +549,67 @@ function toggleBit(idx) {
     document.getElementById("errorCountBadge").textContent = `${state.flippedIndices.size} Bits Flipped`;
     document.getElementById("metricRx").textContent = state.transmittedFrame;
     renderBitButtons();
+    updatePipelineSteps(4);
+    
+    const bitVal = state.transmittedFrame[idx];
+    if (state.flippedIndices.has(idx)) {
+        showToast("Channel Error Injected", `Bit ${idx} flipped to '${bitVal}' (Simulating noise)`, "warn", "⚡");
+    } else {
+        showToast("Bit Cleaned", `Bit ${idx} restored to '${bitVal}'`, "info", "✓");
+    }
+    
     triggerVerification();
 }
 
-function injectRandomError() {
+function flashBtn(btn) {
+    if (!btn) return;
+    btn.style.transform = "scale(0.93)";
+    btn.style.filter = "brightness(1.4)";
+    setTimeout(() => {
+        btn.style.transform = "";
+        btn.style.filter = "";
+    }, 220);
+}
+
+function injectRandomError(btn) {
+    flashBtn(btn);
     if (!state.transmittedFrame) return;
     const idx = Math.floor(Math.random() * state.transmittedFrame.length);
     toggleBit(idx);
 }
 
-function injectBurstError() {
+function injectBurstError(btn) {
+    flashBtn(btn);
     if (!state.transmittedFrame) return;
     const n = state.transmittedFrame.length;
     const start = Math.max(0, Math.floor(Math.random() * (n - 2)));
     for (let i = start; i < Math.min(start + 3, n); i++) {
-        toggleBit(i);
+        const chars = state.transmittedFrame.split("");
+        chars[i] = chars[i] === '0' ? '1' : '0';
+        state.transmittedFrame = chars.join("");
+        if (state.flippedIndices.has(i)) {
+            state.flippedIndices.delete(i);
+        } else {
+            state.flippedIndices.add(i);
+        }
     }
+    document.getElementById("errorCountBadge").textContent = `${state.flippedIndices.size} Bits Flipped`;
+    document.getElementById("metricRx").textContent = state.transmittedFrame;
+    renderBitButtons();
+    updatePipelineSteps(4);
+    showToast("Burst Error Injected", "3 consecutive bits corrupted across channel", "warn", "⚡");
+    triggerVerification();
 }
 
-function clearChannelErrors() {
+function clearChannelErrors(btn) {
+    flashBtn(btn);
     state.transmittedFrame = state.encodedFrame;
     state.flippedIndices.clear();
     document.getElementById("errorCountBadge").textContent = "0 Bits Flipped";
     document.getElementById("metricRx").textContent = state.transmittedFrame;
     renderBitButtons();
+    updatePipelineSteps(4);
+    showToast("Channel Cleaned", "All bit errors cleared. Transmitting pure frame.", "success", "✓");
     triggerVerification();
 }
 
@@ -357,6 +617,19 @@ function clearChannelErrors() {
 // STEP 4: RECEIVER VERIFICATION & CORRECTION
 // -------------------------------------------------------------
 async function triggerVerification() {
+    // Dynamic button clicked feedback
+    const btnVer = document.getElementById("btnVerify");
+    const txtVer = document.getElementById("btnVerifyText");
+    if (btnVer) {
+        btnVer.classList.add("btn-completed");
+        if (txtVer) txtVer.innerHTML = "✓ Step 4: Transmitted & Verified at Receiver!";
+        showToast("Step 4: Transmitted & Verified", "Receiver executed verification & error diagnosis!", "info", "🔍");
+        setTimeout(() => {
+            btnVer.classList.remove("btn-completed");
+            if (txtVer) txtVer.innerHTML = "🔍 Step 4: Transmit & Verify at Receiver";
+        }, 2200);
+    }
+
     const chanMode = document.querySelector('input[name="chanMode"]:checked')?.value || "direct";
     if (chanMode === "ns2") {
         executeNs2Simulation();
@@ -396,6 +669,7 @@ async function triggerVerification() {
     applyVerificationResults(verResult);
     renderVisualizer(state.encodingResult, verResult);
     updateFlowLog(state.encodingResult, verResult);
+    updatePipelineSteps(5);
 }
 
 function applyVerificationResults(v) {

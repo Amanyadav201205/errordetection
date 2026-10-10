@@ -80,6 +80,8 @@ class SimulatorRequestHandler(BaseHTTPRequestHandler):
             return
 
         file_path = os.path.join(WEB_DIR, req_path.lstrip("/"))
+        if not (os.path.exists(file_path) and os.path.isfile(file_path)):
+            file_path = os.path.join(WORKSPACE_DIR, req_path.lstrip("/"))
         if os.path.exists(file_path) and os.path.isfile(file_path):
             mime_type, _ = mimetypes.guess_type(file_path)
             if not mime_type:
