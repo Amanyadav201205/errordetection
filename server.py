@@ -25,7 +25,7 @@ from modules.error_injection import (
     inject_single_random_error,
     inject_burst_error
 )
-from modules.ns2_bridge import is_ns2_available, run_ns2_simulation
+from modules.ns2_bridge import is_ns2_available, run_ns2_simulation, run_ns2_for_technique, run_all_techniques_in_ns2
 
 PORT = 5000
 WEB_DIR = os.path.join(WORKSPACE_DIR, "web")
@@ -178,15 +178,29 @@ class SimulatorRequestHandler(BaseHTTPRequestHandler):
             frame = body.get("frame", "11010010")
             err_rate = float(body.get("error_rate", 0.2))
             num_pkts = int(body.get("num_packets", 15))
+            technique = body.get("technique", "general")
             
             try:
                 sim_res = run_ns2_simulation(
                     encoded_bits=frame,
                     error_rate=err_rate,
                     num_packets=num_pkts,
+                    technique=technique,
                     workspace_dir=WORKSPACE_DIR
                 )
                 self.send_json_response({"success": True, "result": sim_res})
+            except Exception as e:
+                self.send_json_response({"success": False, "error": str(e)}, 500)
+            return
+
+        # 4. API: /api/run-ns2-all (Multi-Technique NS-2 Verification)
+        if req_path == "/api/run-ns2-all":
+            data = body.get("data", "11010010")
+            err_rate = float(body.get("error_rate", 0.2))
+            
+            try:
+                all_res = run_all_techniques_in_ns2(data=data, error_rate=err_rate)
+                self.send_json_response({"success": True, "result": all_res})
             except Exception as e:
                 self.send_json_response({"success": False, "error": str(e)}, 500)
             return

@@ -8,11 +8,15 @@ set pkt_size 64
 set err_rate 0.2
 set num_pkts 20
 set prefix "ns2_sim"
+set technique "All_Techniques"
+set codeword "11010010"
 
-if {[llength $argv] > 0} { set pkt_size [lindex $argv 0] }
-if {[llength $argv] > 1} { set err_rate [lindex $argv 1] }
-if {[llength $argv] > 2} { set num_pkts [lindex $argv 2] }
-if {[llength $argv] > 3} { set prefix   [lindex $argv 3] }
+if {[llength $argv] > 0} { set pkt_size  [lindex $argv 0] }
+if {[llength $argv] > 1} { set err_rate   [lindex $argv 1] }
+if {[llength $argv] > 2} { set num_pkts   [lindex $argv 2] }
+if {[llength $argv] > 3} { set prefix     [lindex $argv 3] }
+if {[llength $argv] > 4} { set technique  [lindex $argv 4] }
+if {[llength $argv] > 5} { set codeword   [lindex $argv 5] }
 
 # Initialize NS Simulator
 set ns [new Simulator]
@@ -30,11 +34,13 @@ $ns namtrace-all $namfile
 
 # Define Finish procedure
 proc finish {} {
-    global ns tracefile namfile prefix
+    global ns tracefile namfile prefix technique codeword
     $ns flush-trace
     close $tracefile
     close $namfile
     puts "NS2_SIMULATION_COMPLETED: $prefix.tr"
+    puts "NS2_DATA_LINK_TECHNIQUE: $technique"
+    puts "NS2_CODEWORD_PAYLOAD: $codeword"
     exit 0
 }
 

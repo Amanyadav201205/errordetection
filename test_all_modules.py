@@ -71,8 +71,16 @@ def run_tests():
     crc_v_err = verify_crc(crc_corrupted, gen)
     assert crc_v_err["error_detected"], "CRC error detection failed"
     print("CRC: PASSED")
-    
-    print("\nALL MODULE TESTS PASSED WITH 100% SUCCESS!")
+
+    print("\n=== Testing NS-2 Channel Integration (All 5 Techniques) ===")
+    from modules.ns2_bridge import run_all_techniques_in_ns2
+    ns2_suite = run_all_techniques_in_ns2("11010010", error_rate=0.2)
+    assert len(ns2_suite) == 5, f"Expected 5 techniques, got {len(ns2_suite)}"
+    for r in ns2_suite:
+        assert r["verified_with_ns2"], f"Technique {r['display_name']} failed NS-2 verification"
+        print(f"  [NS-2 INTEGRATED] {r['display_name']:<30} => Codeword: {r['encoded_frame']:<16} Link: Node 0 -> 1 | Loss: {r['ns2_loss_percentage']}% | Status: {r['status']}")
+
+    print("\nALL MODULE AND NS-2 INTEGRATION TESTS PASSED WITH 100% SUCCESS!")
 
 if __name__ == "__main__":
     run_tests()
