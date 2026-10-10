@@ -250,6 +250,49 @@ body {
     font-weight: 700;
 }
 
+/* User Clicked Selected Step with Radiating Neon Ring */
+.pipeline-step.selected-step {
+    background: linear-gradient(135deg, #0ea5e9, #6366f1) !important;
+    border-color: #38bdf8 !important;
+    color: #ffffff !important;
+    box-shadow: 0 0 24px rgba(14, 165, 233, 0.9), 0 0 40px rgba(99, 102, 241, 0.5) !important;
+    transform: scale(1.12) !important;
+    animation: selected-step-bounce 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    position: relative;
+    z-index: 10;
+}
+
+.pipeline-step.selected-step .step-num {
+    background: #ffffff !important;
+    color: #0284c7 !important;
+    box-shadow: 0 0 10px #ffffff;
+}
+
+@keyframes selected-step-bounce {
+    0% { transform: scale(0.9); }
+    50% { transform: scale(1.22); }
+    100% { transform: scale(1.12); }
+}
+
+.pipeline-step.selected-step::after {
+    content: '';
+    position: absolute;
+    top: -5px;
+    left: -5px;
+    right: -5px;
+    bottom: -5px;
+    border-radius: var(--radius-full);
+    border: 2px solid #38bdf8;
+    animation: step-ring-pulse 1.6s infinite;
+    pointer-events: none;
+}
+
+@keyframes step-ring-pulse {
+    0% { transform: scale(1); opacity: 1; }
+    60% { transform: scale(1.22); opacity: 0; }
+    100% { transform: scale(1); opacity: 0; }
+}
+
 .step-num {
     width: 22px;
     height: 22px;
@@ -580,26 +623,124 @@ body {
 
 .btn-primary.btn-completed, .btn-success.btn-completed {
     background: linear-gradient(135deg, #10b981, #047857) !important;
-    box-shadow: 0 0 22px rgba(16, 185, 129, 0.75) !important;
+    box-shadow: 0 0 28px rgba(16, 185, 129, 0.9), 0 0 50px rgba(16, 185, 129, 0.4) !important;
     color: #ffffff !important;
-    transform: scale(1.02);
-    animation: btn-glow 1.5s ease;
+    transform: scale(1.03) !important;
+    animation: btn-pop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
-@keyframes btn-glow {
-    0% { transform: scale(0.97); filter: brightness(1.2); }
-    50% { transform: scale(1.03); filter: brightness(1.3); }
-    100% { transform: scale(1.02); filter: brightness(1.0); }
+@keyframes btn-pop {
+    0% { transform: scale(0.92); }
+    50% { transform: scale(1.08); }
+    100% { transform: scale(1.03); }
 }
 
 .card.card-highlight {
-    animation: card-spotlight 1.6s ease;
+    animation: card-spotlight 1.8s ease;
 }
 
 @keyframes card-spotlight {
-    0% { border-color: rgba(56, 189, 248, 0.2); }
-    30% { border-color: var(--color-cyan); box-shadow: 0 0 24px rgba(14, 165, 233, 0.45); }
-    100% { border-color: rgba(56, 189, 248, 0.3); }
+    0% { border-color: rgba(56, 189, 248, 0.2); transform: scale(1); }
+    20% { border-color: #38bdf8; box-shadow: 0 0 32px rgba(14, 165, 233, 0.7); transform: scale(1.015); }
+    50% { border-color: #0ea5e9; box-shadow: 0 0 20px rgba(14, 165, 233, 0.4); transform: scale(1.008); }
+    100% { border-color: rgba(56, 189, 248, 0.3); transform: scale(1); }
+}
+
+/* ======================================================================
+   Floating Interactive Toast Notification Banner
+   ====================================================================== */
+.toast-container {
+    position: fixed;
+    top: 76px;
+    right: 20px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    pointer-events: none;
+}
+
+.toast-msg {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: rgba(15, 23, 42, 0.95);
+    border: 1px solid rgba(56, 189, 248, 0.5);
+    backdrop-filter: blur(16px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), 0 0 20px rgba(14, 165, 233, 0.4);
+    color: #ffffff;
+    padding: 12px 18px;
+    border-radius: var(--radius-md);
+    font-size: 0.88rem;
+    font-weight: 600;
+    pointer-events: auto;
+    animation: toast-slide-in 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275), toast-fade-out 0.4s ease 2.6s forwards;
+    min-width: 280px;
+    max-width: 440px;
+}
+
+.toast-msg.success {
+    border-color: rgba(16, 185, 129, 0.7);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), 0 0 20px rgba(16, 185, 129, 0.45);
+}
+
+.toast-msg.info {
+    border-color: rgba(14, 165, 233, 0.7);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), 0 0 20px rgba(14, 165, 233, 0.45);
+}
+
+.toast-msg.warn {
+    border-color: rgba(245, 158, 11, 0.7);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), 0 0 20px rgba(245, 158, 11, 0.45);
+}
+
+.toast-icon {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: rgba(14, 165, 233, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.05rem;
+    flex-shrink: 0;
+}
+
+.toast-msg.success .toast-icon { background: rgba(16, 185, 129, 0.25); color: #34d399; }
+.toast-msg.info .toast-icon { background: rgba(14, 165, 233, 0.25); color: #38bdf8; }
+.toast-msg.warn .toast-icon { background: rgba(245, 158, 11, 0.25); color: #fbbf24; }
+
+.toast-text {
+    display: flex;
+    flex-direction: column;
+}
+
+.toast-title {
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #94a3b8;
+}
+
+.toast-msg.success .toast-title { color: #34d399; }
+.toast-msg.info .toast-title { color: #38bdf8; }
+.toast-msg.warn .toast-title { color: #fbbf24; }
+
+.toast-desc {
+    font-size: 0.84rem;
+    color: #ffffff;
+    margin-top: 2px;
+}
+
+@keyframes toast-slide-in {
+    0% { transform: translateX(120%) scale(0.9); opacity: 0; }
+    100% { transform: translateX(0) scale(1); opacity: 1; }
+}
+
+@keyframes toast-fade-out {
+    0% { opacity: 1; transform: translateY(0); }
+    100% { opacity: 0; transform: translateY(-16px); }
 }
 
 /* Clickable Interactive Bits Track */

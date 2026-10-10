@@ -192,35 +192,63 @@ function updatePipelineSteps(stage) {
             }
         }
     }
+// Toast Notification Manager
+function showToast(title, desc, type = "info", icon = "●") {
+    const container = document.getElementById("toastContainer");
+    if (!container) return;
+
+    const toast = document.createElement("div");
+    toast.className = `toast-msg ${type}`;
+    toast.innerHTML = `
+        <div class="toast-icon">${icon}</div>
+        <div class="toast-text">
+            <span class="toast-title">${title}</span>
+            <span class="toast-desc">${desc}</span>
+        </div>
+    `;
+
+    container.appendChild(toast);
+
+    // Auto remove after 3s
+    setTimeout(() => {
+        if (toast.parentNode) {
+            toast.parentNode.removeChild(toast);
+        }
+    }, 3100);
 }
 
-// Pipeline Steps Interactive Click Handler
+// Pipeline Steps Interactive Click Handler with Rich Visual Feedback
 function handleStepClick(stepNum) {
+    // 1. Highlight the exact clicked step with radiant glowing ring
+    document.querySelectorAll(".pipeline-step").forEach(s => s.classList.remove("selected-step"));
     const clicked = document.getElementById(`pipeStep${stepNum}`);
     if (clicked) {
-        clicked.classList.add("clicked");
-        setTimeout(() => clicked.classList.remove("clicked"), 300);
+        clicked.classList.add("selected-step");
+        setTimeout(() => clicked.classList.remove("selected-step"), 2500);
     }
 
     if (stepNum === 1) {
+        showToast("Step 1: Input Data Module", "Binary source message ready for editing.", "info", "📌");
         const card = document.getElementById("cardInput");
         if (card) {
             card.scrollIntoView({ behavior: "smooth", block: "center" });
             card.classList.add("card-highlight");
-            setTimeout(() => card.classList.remove("card-highlight"), 1600);
+            setTimeout(() => card.classList.remove("card-highlight"), 1800);
         }
         const inp = document.getElementById("inputBinary");
-        if (inp) inp.focus();
+        if (inp) { inp.focus(); inp.select(); }
         updatePipelineSteps(1);
     } else if (stepNum === 2) {
+        showToast("Step 2: Redundancy Encoding", "Generated check bits & transmitted codeword.", "success", "⚡");
         const card = document.getElementById("cardTechnique");
         if (card) {
             card.scrollIntoView({ behavior: "smooth", block: "center" });
             card.classList.add("card-highlight");
-            setTimeout(() => card.classList.remove("card-highlight"), 1600);
+            setTimeout(() => card.classList.remove("card-highlight"), 1800);
         }
         triggerEncoding();
     } else if (stepNum === 3) {
+        showToast("Step 3: Network Channel & NS-2", "Link transmission modeling with packet error rate.", "info", "🌐");
         const chanMode = document.querySelector('input[name="chanMode"][value="ns2"]');
         if (chanMode) {
             chanMode.checked = true;
@@ -230,23 +258,26 @@ function handleStepClick(stepNum) {
         if (ns2Tab) ns2Tab.click();
         updatePipelineSteps(3);
     } else if (stepNum === 4) {
+        showToast("Step 4: Channel Error Injection", "Click any bit below to flip it and simulate noise.", "warn", "🎯");
         const card = document.getElementById("cardChannel");
         if (card) {
             card.scrollIntoView({ behavior: "smooth", block: "center" });
             card.classList.add("card-highlight");
-            setTimeout(() => card.classList.remove("card-highlight"), 1600);
+            setTimeout(() => card.classList.remove("card-highlight"), 1800);
         }
         const track = document.getElementById("bitsTrack");
         if (track) {
             track.style.borderColor = "var(--color-warning)";
-            setTimeout(() => track.style.borderColor = "var(--border-color)", 1200);
+            setTimeout(() => track.style.borderColor = "var(--border-color)", 1400);
         }
         updatePipelineSteps(4);
     } else if (stepNum === 5) {
+        showToast("Step 5: Receiver Verification", "Transmitted across channel & checked at receiver sink.", "info", "🔍");
         const resTab = document.querySelector('.tab-btn[data-tab="tab-results"]');
         if (resTab) resTab.click();
         triggerVerification();
     } else if (stepNum === 6) {
+        showToast("Step 6: Diagnosis & Recovery", "Viewing mathematical syndrome & parity grid visualizer.", "success", "🔬");
         const visTab = document.querySelector('.tab-btn[data-tab="tab-visualizer"]');
         if (visTab) visTab.click();
         updatePipelineSteps(6);
@@ -378,6 +409,7 @@ async function triggerEncoding() {
     if (btnEnc) {
         btnEnc.classList.add("btn-completed");
         if (txtEnc) txtEnc.innerHTML = "✓ Step 1 & 2: Encoded & Redundancy Generated!";
+        showToast("Step 1 & 2 Completed", "Frame encoded with check bits attached!", "success", "⚡");
         setTimeout(() => {
             btnEnc.classList.remove("btn-completed");
             if (txtEnc) txtEnc.innerHTML = "⚡ Step 1 & 2: Re-Encode / Update Redundancy";
@@ -471,6 +503,14 @@ function toggleBit(idx) {
     document.getElementById("metricRx").textContent = state.transmittedFrame;
     renderBitButtons();
     updatePipelineSteps(4);
+    
+    const bitVal = state.transmittedFrame[idx];
+    if (state.flippedIndices.has(idx)) {
+        showToast("Channel Error Injected", `Bit ${idx} flipped to '${bitVal}' (Simulating noise)`, "warn", "⚡");
+    } else {
+        showToast("Bit Cleaned", `Bit ${idx} restored to '${bitVal}'`, "info", "✓");
+    }
+    
     triggerVerification();
 }
 
@@ -510,6 +550,7 @@ function injectBurstError(btn) {
     document.getElementById("metricRx").textContent = state.transmittedFrame;
     renderBitButtons();
     updatePipelineSteps(4);
+    showToast("Burst Error Injected", "3 consecutive bits corrupted across channel", "warn", "⚡");
     triggerVerification();
 }
 
@@ -521,6 +562,7 @@ function clearChannelErrors(btn) {
     document.getElementById("metricRx").textContent = state.transmittedFrame;
     renderBitButtons();
     updatePipelineSteps(4);
+    showToast("Channel Cleaned", "All bit errors cleared. Transmitting pure frame.", "success", "✓");
     triggerVerification();
 }
 
@@ -534,6 +576,7 @@ async function triggerVerification() {
     if (btnVer) {
         btnVer.classList.add("btn-completed");
         if (txtVer) txtVer.innerHTML = "✓ Step 4: Transmitted & Verified at Receiver!";
+        showToast("Step 4: Transmitted & Verified", "Receiver executed verification & error diagnosis!", "info", "🔍");
         setTimeout(() => {
             btnVer.classList.remove("btn-completed");
             if (txtVer) txtVer.innerHTML = "🔍 Step 4: Transmit & Verify at Receiver";
