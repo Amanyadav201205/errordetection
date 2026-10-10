@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=2.2">
+    <link rel="stylesheet" href="style.css?v=3.0">
 </head>
 <body>
     <!-- Top Navigation Header -->
@@ -28,6 +28,14 @@
                 <p class="header-sub">Data Link Layer & Physical Channel Transmission Modeling</p>
             </div>
         </div>
+        <nav class="header-nav" aria-label="Main Navigation">
+            <button class="nav-tab active" id="btnNavHome" onclick="switchMainView('home')">
+                <span>🏠 Overview & Cover</span>
+            </button>
+            <button class="nav-tab" id="btnNavLab" onclick="switchMainView('lab')">
+                <span>⚡ Interactive Simulator Lab</span>
+            </button>
+        </nav>
         <div class="header-right">
             <div class="ns2-badge" id="ns2EngineBadge">
                 <span class="badge-dot pulse"></span>
@@ -37,17 +45,331 @@
         </div>
     </header>
 
-    <!-- Architecture Flow Pipeline Indicator (From Lab Flowchart) -->
-    <nav class="pipeline-bar" aria-label="System Architecture Steps">
-        <div class="pipeline-step completed" id="pipeStep1" role="button" tabindex="0" title="Step 1: Input Data Module (Click to view)" onclick="handleStepClick(1)">
-            <span class="step-num" id="pipeNum1">✓</span>
-            <span class="step-name">1. Input Binary</span>
+    <!-- ================================================================= -->
+    <!-- VIEW 1: FRONT COVER PAGE (LANDING HERO, TOPIC TECHNIQUES & TEAM)  -->
+    <!-- ================================================================= -->
+    <div id="viewHome" class="front-page-view">
+        <!-- Hero Section -->
+        <section class="front-hero">
+            <div class="front-hero-container">
+                <div class="hero-badge">
+                    <span class="badge-dot pulse"></span>
+                    <span>COMPUTER NETWORKS LAB PROJECT</span>
+                </div>
+                <h1 class="hero-main-title">
+                    Interactive Network Error Detection & Correction Simulator
+                </h1>
+                <p class="hero-tagline">
+                    A comprehensive simulation platform modeling Data Link Layer error control mechanisms, transmission channel noise, mathematical syndrome calculation, and Network Simulator 2 (NS-2) discrete event link loss modeling.
+                </p>
+
+                <div class="hero-actions">
+                    <button class="hero-btn primary" onclick="switchMainView('lab')">
+                        <span>🚀 Launch Interactive Simulator Lab</span>
+                    </button>
+                    <button class="hero-btn secondary" onclick="document.getElementById('secTechniques').scrollIntoView({ behavior: 'smooth' })">
+                        <span>📚 Explore Algorithms</span>
+                    </button>
+                    <button class="hero-btn outline" onclick="document.getElementById('secTeam').scrollIntoView({ behavior: 'smooth' })">
+                        <span>👥 Project Team</span>
+                    </button>
+                </div>
+
+                <!-- 4 Quick Highlights Metrics -->
+                <div class="hero-stats-row">
+                    <div class="hero-stat-card">
+                        <span class="stat-number">5</span>
+                        <span class="stat-label">Core Algorithms</span>
+                        <span class="stat-sub">Parity, 2D Grid, Hamming, Checksum, CRC</span>
+                    </div>
+                    <div class="hero-stat-card">
+                        <span class="stat-number">NS-2</span>
+                        <span class="stat-label">Channel Simulator</span>
+                        <span class="stat-sub">Duplex Link with ErrorModel Loss</span>
+                    </div>
+                    <div class="hero-stat-card">
+                        <span class="stat-number">100%</span>
+                        <span class="stat-label">Interactive Noise</span>
+                        <span class="stat-sub">Bit-level Flipping & Recovery</span>
+                    </div>
+                    <div class="hero-stat-card">
+                        <span class="stat-number">Real-Time</span>
+                        <span class="stat-label">Trace Visualization</span>
+                        <span class="stat-sub">Syndrome & Mathematical Matrices</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section: Project Team Showcase (Prominently on Front Page) -->
+        <section class="front-section" id="secTeam">
+            <div class="section-heading-box">
+                <span class="section-pill">DEVELOPED BY</span>
+                <h2 class="section-title">Project Team Members</h2>
+                <p class="section-subtitle">Computer Networks Lab Project — Designed and implemented for interactive error detection, correction, and channel modeling</p>
+            </div>
+
+            <div class="team-showcase-grid">
+                <div class="team-showcase-card">
+                    <div class="team-avatar-ring">
+                        <div class="team-avatar">AY</div>
+                    </div>
+                    <h3 class="team-member-name">AMAN KUMAR YADAV</h3>
+                    <span class="team-member-role">Team Member</span>
+                    <p class="team-member-desc">Parity & CRC Modulo-2 Division Implementation, Web Architecture & Simulator Engine Integration</p>
+                    <div class="team-tags">
+                        <span>CRC Modulo-2</span>
+                        <span>1D & 2D Parity</span>
+                        <span>Full-Stack Architecture</span>
+                    </div>
+                </div>
+
+                <div class="team-showcase-card highlight">
+                    <div class="team-avatar-ring">
+                        <div class="team-avatar">PB</div>
+                    </div>
+                    <h3 class="team-member-name">PRATIK BHARADBHUNJE</h3>
+                    <span class="team-member-role">Team Member</span>
+                    <p class="team-member-desc">Hamming Code Syndrome Calculation, Forward Error Correction & Matrix Grid Algorithms</p>
+                    <div class="team-tags">
+                        <span>Hamming (n, k)</span>
+                        <span>Syndrome Recovery</span>
+                        <span>Trace Parser</span>
+                    </div>
+                </div>
+
+                <div class="team-showcase-card">
+                    <div class="team-avatar-ring">
+                        <div class="team-avatar">DG</div>
+                    </div>
+                    <h3 class="team-member-name">DEVRISHI GADIA</h3>
+                    <span class="team-member-role">Team Member</span>
+                    <p class="team-member-desc">Internet Checksum 1's Complement Summation, NS-2 Channel Modeling & Trace Analytics</p>
+                    <div class="team-tags">
+                        <span>Internet Checksum</span>
+                        <span>NS-2 Simulator</span>
+                        <span>OTcl ErrorModel</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section: Error Control Techniques Suite -->
+        <section class="front-section" id="secTechniques">
+            <div class="section-heading-box">
+                <span class="section-pill">ALGORITHM SUITE</span>
+                <h2 class="section-title">Implemented Error Control Techniques</h2>
+                <p class="section-subtitle">Deep mathematical modeling of Data Link Layer error detection and forward error correction mechanisms</p>
+            </div>
+
+            <div class="techniques-showcase-grid">
+                <!-- 1. 1D Parity -->
+                <div class="tech-showcase-card" onclick="launchTechniqueInLab('parity')">
+                    <div class="tech-card-header">
+                        <div class="tech-badge-icon">1D</div>
+                        <div>
+                            <h3>1D Parity Check</h3>
+                            <span class="tech-sub-tag">Even & Odd Schemes</span>
+                        </div>
+                    </div>
+                    <p class="tech-card-desc">
+                        Appends a single redundancy bit to ensure the total count of binary 1s is even or odd. Offers minimum bandwidth overhead for single-bit error detection at the receiver.
+                    </p>
+                    <div class="tech-formula-box">
+                        <code>P = b_1 ⊕ b_2 ⊕ ... ⊕ b_n</code>
+                    </div>
+                    <div class="tech-card-footer">
+                        <span class="btn-try-tech">Open in Simulator ➔</span>
+                    </div>
+                </div>
+
+                <!-- 2. 2D Parity Matrix -->
+                <div class="tech-showcase-card" onclick="launchTechniqueInLab('parity2d')">
+                    <div class="tech-card-header">
+                        <div class="tech-badge-icon">2D</div>
+                        <div>
+                            <h3>2D Parity Check (Matrix)</h3>
+                            <span class="tech-sub-tag">Row & Column Intersection</span>
+                        </div>
+                    </div>
+                    <p class="tech-card-desc">
+                        Organizes binary stream into an M × N matrix grid. Calculates both horizontal row and vertical column parities. Intersecting parity discrepancies pinpoint exact bit coordinates for automatic correction!
+                    </p>
+                    <div class="tech-formula-box">
+                        <code>Error at (Row_i, Col_j)</code>
+                    </div>
+                    <div class="tech-card-footer">
+                        <span class="btn-try-tech">Open in Simulator ➔</span>
+                    </div>
+                </div>
+
+                <!-- 3. Hamming Code -->
+                <div class="tech-showcase-card highlight" onclick="launchTechniqueInLab('hamming')">
+                    <div class="tech-card-header">
+                        <div class="tech-badge-icon">HAM</div>
+                        <div>
+                            <h3>Hamming Code (n, k)</h3>
+                            <span class="tech-sub-tag">Forward Error Correction</span>
+                        </div>
+                    </div>
+                    <p class="tech-card-desc">
+                        Inserts check bits at power-of-two bit positions (1, 2, 4, 8, ...). Evaluates syndrome bit equations at the receiver to calculate the exact corrupted bit index and flips it back automatically.
+                    </p>
+                    <div class="tech-formula-box">
+                        <code>Syndrome S = (s_3 s_2 s_1)_2</code>
+                    </div>
+                    <div class="tech-card-footer">
+                        <span class="btn-try-tech">Open in Simulator ➔</span>
+                    </div>
+                </div>
+
+                <!-- 4. Internet Checksum -->
+                <div class="tech-showcase-card" onclick="launchTechniqueInLab('checksum')">
+                    <div class="tech-card-header">
+                        <div class="tech-badge-icon">CHK</div>
+                        <div>
+                            <h3>Internet Checksum</h3>
+                            <span class="tech-sub-tag">1's Complement Summation</span>
+                        </div>
+                    </div>
+                    <p class="tech-card-desc">
+                        Divides binary stream into k-bit blocks (4, 8, or 16 bits), computes 1's complement binary addition with wraparound end-around carry, and inverts the sum. Fundamental check used in IPv4, TCP, and UDP headers.
+                    </p>
+                    <div class="tech-formula-box">
+                        <code>Checksum = ~Sum(W_1 + W_2 + ...)</code>
+                    </div>
+                    <div class="tech-card-footer">
+                        <span class="btn-try-tech">Open in Simulator ➔</span>
+                    </div>
+                </div>
+
+                <!-- 5. CRC -->
+                <div class="tech-showcase-card" onclick="launchTechniqueInLab('crc')">
+                    <div class="tech-card-header">
+                        <div class="tech-badge-icon">CRC</div>
+                        <div>
+                            <h3>Cyclic Redundancy Check</h3>
+                            <span class="tech-sub-tag">Modulo-2 XOR Polynomial</span>
+                        </div>
+                    </div>
+                    <p class="tech-card-desc">
+                        Applies binary polynomial division over GF(2) with XOR operations. Detects all single-bit errors, double-bit errors, odd numbers of errors, and burst errors up to generator polynomial degree.
+                    </p>
+                    <div class="tech-formula-box">
+                        <code>Frame = (Data × 2^r) + Remainder</code>
+                    </div>
+                    <div class="tech-card-footer">
+                        <span class="btn-try-tech">Open in Simulator ➔</span>
+                    </div>
+                </div>
+
+                <!-- 6. NS-2 Channel Simulator -->
+                <div class="tech-showcase-card" onclick="launchTechniqueInLab('ns2')">
+                    <div class="tech-card-header">
+                        <div class="tech-badge-icon">NS2</div>
+                        <div>
+                            <h3>NS-2 Channel Simulator</h3>
+                            <span class="tech-sub-tag">Network Simulator 2 (WSL)</span>
+                        </div>
+                    </div>
+                    <p class="tech-card-desc">
+                        Simulates physical network duplex link between Node 0 (Transmitter) and Node 1 (Receiver) with an ErrorModel. Parses .tr event traces (+, -, d, r) and computes Packet Error Rate (PER).
+                    </p>
+                    <div class="tech-formula-box">
+                        <code>Loss Ratio = Dropped / (Rx + Drop)</code>
+                    </div>
+                    <div class="tech-card-footer">
+                        <span class="btn-try-tech">Open in Simulator ➔</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section: Architecture Pipeline Flowchart -->
+        <section class="front-section" id="secPipeline">
+            <div class="section-heading-box">
+                <span class="section-pill">SYSTEM ARCHITECTURE</span>
+                <h2 class="section-title">End-to-End Simulation Pipeline</h2>
+                <p class="section-subtitle">The 6 architectural stages of network transmission modeling</p>
+            </div>
+
+            <div class="flow-steps-grid">
+                <div class="flow-step-card">
+                    <span class="flow-number">01</span>
+                    <h4>Input Binary</h4>
+                    <p>Validation, presets (4, 8, 12, 16 bits), or ASCII text converter.</p>
+                </div>
+                <div class="flow-step-arrow">➔</div>
+                <div class="flow-step-card">
+                    <span class="flow-number">02</span>
+                    <h4>Encode & Redundancy</h4>
+                    <p>Generates check bits, syndrome matrices, and transmitted codeword.</p>
+                </div>
+                <div class="flow-step-arrow">➔</div>
+                <div class="flow-step-card">
+                    <span class="flow-number">03</span>
+                    <h4>Channel & NS-2</h4>
+                    <p>Physical link transmission with optional NS-2 ErrorModel loss.</p>
+                </div>
+                <div class="flow-step-arrow">➔</div>
+                <div class="flow-step-card">
+                    <span class="flow-number">04</span>
+                    <h4>Error Injection</h4>
+                    <p>Click-to-flip bits, random 1-bit noise, or 3-bit burst corruption.</p>
+                </div>
+                <div class="flow-step-arrow">➔</div>
+                <div class="flow-step-card">
+                    <span class="flow-number">05</span>
+                    <h4>Receiver Verify</h4>
+                    <p>Syndrome calculation, 1's complement check, or XOR division verification.</p>
+                </div>
+                <div class="flow-step-arrow">➔</div>
+                <div class="flow-step-card">
+                    <span class="flow-number">06</span>
+                    <h4>Recovery & Result</h4>
+                    <p>Automated bit correction, diagnostic breakdown, and step-by-step visualizer.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Final Call to Action -->
+        <div class="front-cta-banner">
+            <div class="cta-inner">
+                <h2>Ready to Test Network Error Detection & Correction?</h2>
+                <p>Launch the interactive simulator lab to encode messages, inject channel noise, and observe real-time mathematical recovery.</p>
+                <button class="hero-btn primary large" onclick="switchMainView('lab')">
+                    <span>⚡ Enter Interactive Simulator Lab Now ➔</span>
+                </button>
+            </div>
         </div>
-        <div class="pipeline-arrow">➔</div>
-        <div class="pipeline-step current" id="pipeStep2" role="button" tabindex="0" title="Step 2: Technique & Redundancy Encoding (Click to trigger)" onclick="handleStepClick(2)">
-            <span class="step-num" id="pipeNum2">2</span>
-            <span class="step-name">2. Technique & Encode</span>
+    </div>
+
+    <!-- ================================================================= -->
+    <!-- VIEW 2: INTERACTIVE SIMULATOR LAB WORKSPACE                       -->
+    <!-- ================================================================= -->
+    <div id="viewLab" class="simulator-view" style="display: none;">
+        <!-- Top Workspace Bar with Quick Return -->
+        <div class="lab-top-bar">
+            <button class="btn-back-home" onclick="switchMainView('home')">
+                <span>← Back to Project Overview</span>
+            </button>
+            <div class="lab-status-badge">
+                <span class="badge-dot pulse"></span>
+                <span>Interactive Simulation Workspace Active</span>
+            </div>
         </div>
+
+        <!-- Architecture Flow Pipeline Indicator (From Lab Flowchart) -->
+        <nav class="pipeline-bar" aria-label="System Architecture Steps">
+            <div class="pipeline-step completed" id="pipeStep1" role="button" tabindex="0" title="Step 1: Input Data Module (Click to view)" onclick="handleStepClick(1)">
+                <span class="step-num" id="pipeNum1">✓</span>
+                <span class="step-name">1. Input Binary</span>
+            </div>
+            <div class="pipeline-arrow">➔</div>
+            <div class="pipeline-step current" id="pipeStep2" role="button" tabindex="0" title="Step 2: Technique & Redundancy Encoding (Click to trigger)" onclick="handleStepClick(2)">
+                <span class="step-num" id="pipeNum2">2</span>
+                <span class="step-name">2. Technique & Encode</span>
+            </div>
         <div class="pipeline-arrow">➔</div>
         <div class="pipeline-step" id="pipeStep3" role="button" tabindex="0" title="Step 3: Channel Transmission & NS-2 (Click to view)" onclick="handleStepClick(3)">
             <span class="step-num" id="pipeNum3">3</span>
@@ -408,6 +730,7 @@
             </div>
         </section>
     </main>
+    </div> <!-- End viewLab -->
 
     <!-- Team Details Modal -->
     <div class="modal-overlay" id="teamModal">
@@ -474,6 +797,6 @@
     <div id="toastContainer" class="toast-container" aria-live="polite"></div>
 
     <!-- Script -->
-    <script src="app.js?v=2.2"></script>
+    <script src="app.js?v=3.0"></script>
 </body>
 </html>

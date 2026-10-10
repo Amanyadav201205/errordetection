@@ -31,6 +31,53 @@ const CRC_PRESETS = {
     "CRC-32 (IEEE 802.3)": "100000100110000010001110110110111"
 };
 
+// =============================================================
+// MAIN VIEW NAVIGATION (FRONT COVER PAGE vs SIMULATOR LAB)
+// =============================================================
+function switchMainView(view) {
+    const homeView = document.getElementById("viewHome");
+    const labView = document.getElementById("viewLab");
+    const btnHome = document.getElementById("btnNavHome");
+    const btnLab = document.getElementById("btnNavLab");
+
+    if (view === "home") {
+        if (homeView) homeView.style.display = "block";
+        if (labView) labView.style.display = "none";
+        if (btnHome) btnHome.classList.add("active");
+        if (btnLab) btnLab.classList.remove("active");
+        window.scrollTo({ top: 0, behavior: "smooth" });
+    } else {
+        if (homeView) homeView.style.display = "none";
+        if (labView) labView.style.display = "block";
+        if (btnHome) btnHome.classList.remove("active");
+        if (btnLab) btnLab.classList.add("active");
+        window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+}
+
+function launchTechniqueInLab(tech) {
+    switchMainView("lab");
+    if (tech === "ns2") {
+        const chanMode = document.querySelector('input[name="chanMode"][value="ns2"]');
+        if (chanMode) {
+            chanMode.checked = true;
+            onChanModeChange();
+        }
+        const ns2Tab = document.querySelector('.tab-btn[data-tab="tab-ns2"]');
+        if (ns2Tab) ns2Tab.click();
+    } else {
+        const radio = document.querySelector(`input[name="technique"][value="${tech}"]`);
+        if (radio) {
+            radio.checked = true;
+            onTechniqueChange();
+        }
+        const card = document.getElementById("cardTechnique");
+        if (card) {
+            setTimeout(() => card.scrollIntoView({ behavior: "smooth", block: "center" }), 100);
+        }
+    }
+}
+
 // Initialize Application
 document.addEventListener("DOMContentLoaded", () => {
     initEventListeners();
