@@ -239,6 +239,8 @@ function updatePipelineSteps(stage) {
             }
         }
     }
+}
+
 // Toast Notification Manager
 function showToast(title, desc, type = "info", icon = "●") {
     const container = document.getElementById("toastContainer");
