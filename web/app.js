@@ -103,8 +103,17 @@ async function checkSystemStatus() {
 }
 
 // Preset helpers
-function applyPreset(bits) {
+function applyPreset(bits, el) {
     document.querySelectorAll(".presets-row .btn-chip").forEach(c => c.classList.remove("active"));
+    if (el && el.classList) {
+        el.classList.add("active");
+    } else {
+        document.querySelectorAll(".presets-row .btn-chip").forEach(c => {
+            if (c.textContent.trim() === `${bits.length}-bit` || c.getAttribute("onclick")?.includes(`'${bits}'`)) {
+                c.classList.add("active");
+            }
+        });
+    }
     const input = document.getElementById("inputBinary");
     input.value = bits;
     state.inputData = bits;
@@ -120,6 +129,128 @@ function convertTextToBinary() {
         binary += txt.charCodeAt(i).toString(2).padStart(8, '0');
     }
     applyPreset(binary);
+}
+
+// Channel Mode Radio Change
+function onChanModeChange() {
+    const selected = document.querySelector('input[name="chanMode"]:checked')?.value || "direct";
+    const directLabel = document.getElementById("chanModeDirectLabel");
+    const ns2Label = document.getElementById("chanModeNs2Label");
+    if (directLabel) directLabel.classList.toggle("active", selected === "direct");
+    if (ns2Label) ns2Label.classList.toggle("active", selected === "ns2");
+
+    if (selected === "ns2") {
+        const ns2Tab = document.querySelector('.tab-btn[data-tab="tab-ns2"]');
+        if (ns2Tab) ns2Tab.click();
+    }
+}
+
+// Architecture Flow Pipeline Step Manager
+function updatePipelineSteps(stage) {
+    for (let i = 1; i <= 6; i++) {
+        const step = document.getElementById(`pipeStep${i}`);
+        const num = document.getElementById(`pipeNum${i}`);
+        if (!step || !num) continue;
+        step.classList.remove("completed", "current", "active");
+
+        if (stage === 1) {
+            if (i === 1) { step.classList.add("current"); num.textContent = "1"; }
+            else if (i === 2) { step.classList.add("active"); num.textContent = "2"; }
+            else { num.textContent = String(i); }
+        } else if (stage === 2) {
+            // Step 1 & 2 Completed (Encoded)
+            if (i === 1 || i === 2) {
+                step.classList.add("completed");
+                num.textContent = "✓";
+            } else if (i === 3 || i === 4) {
+                step.classList.add("current");
+                num.textContent = String(i);
+            } else {
+                num.textContent = String(i);
+            }
+        } else if (stage === 3) {
+            // Channel & NS-2
+            if (i <= 2) { step.classList.add("completed"); num.textContent = "✓"; }
+            else if (i === 3) { step.classList.add("current"); num.textContent = "3"; }
+            else if (i === 4) { step.classList.add("active"); num.textContent = "4"; }
+            else { num.textContent = String(i); }
+        } else if (stage === 4) {
+            // Error Injection active
+            if (i <= 2) { step.classList.add("completed"); num.textContent = "✓"; }
+            else if (i === 4) { step.classList.add("current"); num.textContent = "4"; }
+            else if (i === 5) { step.classList.add("active"); num.textContent = "5"; }
+            else { num.textContent = String(i); }
+        } else if (stage >= 5) {
+            // Verification and Correction completed
+            if (i <= 5) {
+                step.classList.add("completed");
+                num.textContent = "✓";
+            }
+            if (i === 6) {
+                step.classList.add("completed");
+                num.textContent = "✓";
+            }
+        }
+    }
+}
+
+// Pipeline Steps Interactive Click Handler
+function handleStepClick(stepNum) {
+    const clicked = document.getElementById(`pipeStep${stepNum}`);
+    if (clicked) {
+        clicked.classList.add("clicked");
+        setTimeout(() => clicked.classList.remove("clicked"), 300);
+    }
+
+    if (stepNum === 1) {
+        const card = document.getElementById("cardInput");
+        if (card) {
+            card.scrollIntoView({ behavior: "smooth", block: "center" });
+            card.classList.add("card-highlight");
+            setTimeout(() => card.classList.remove("card-highlight"), 1600);
+        }
+        const inp = document.getElementById("inputBinary");
+        if (inp) inp.focus();
+        updatePipelineSteps(1);
+    } else if (stepNum === 2) {
+        const card = document.getElementById("cardTechnique");
+        if (card) {
+            card.scrollIntoView({ behavior: "smooth", block: "center" });
+            card.classList.add("card-highlight");
+            setTimeout(() => card.classList.remove("card-highlight"), 1600);
+        }
+        triggerEncoding();
+    } else if (stepNum === 3) {
+        const chanMode = document.querySelector('input[name="chanMode"][value="ns2"]');
+        if (chanMode) {
+            chanMode.checked = true;
+            onChanModeChange();
+        }
+        const ns2Tab = document.querySelector('.tab-btn[data-tab="tab-ns2"]');
+        if (ns2Tab) ns2Tab.click();
+        updatePipelineSteps(3);
+    } else if (stepNum === 4) {
+        const card = document.getElementById("cardChannel");
+        if (card) {
+            card.scrollIntoView({ behavior: "smooth", block: "center" });
+            card.classList.add("card-highlight");
+            setTimeout(() => card.classList.remove("card-highlight"), 1600);
+        }
+        const track = document.getElementById("bitsTrack");
+        if (track) {
+            track.style.borderColor = "var(--color-warning)";
+            setTimeout(() => track.style.borderColor = "var(--border-color)", 1200);
+        }
+        updatePipelineSteps(4);
+    } else if (stepNum === 5) {
+        const resTab = document.querySelector('.tab-btn[data-tab="tab-results"]');
+        if (resTab) resTab.click();
+        triggerVerification();
+    } else if (stepNum === 6) {
+        const visTab = document.querySelector('.tab-btn[data-tab="tab-visualizer"]');
+        if (visTab) visTab.click();
+        updatePipelineSteps(6);
+    }
 }
 
 // Technique Radio Change
@@ -241,6 +372,18 @@ function onCrcPresetChange(val) {
 // STEP 1 & 2: ENCODING AND REDUNDANCY GENERATION
 // -------------------------------------------------------------
 async function triggerEncoding() {
+    // Dynamic button clicked feedback
+    const btnEnc = document.getElementById("btnEncode");
+    const txtEnc = document.getElementById("btnEncodeText");
+    if (btnEnc) {
+        btnEnc.classList.add("btn-completed");
+        if (txtEnc) txtEnc.innerHTML = "✓ Step 1 & 2: Encoded & Redundancy Generated!";
+        setTimeout(() => {
+            btnEnc.classList.remove("btn-completed");
+            if (txtEnc) txtEnc.innerHTML = "⚡ Step 1 & 2: Re-Encode / Update Redundancy";
+        }, 2200);
+    }
+
     const payload = {
         data: state.inputData || "11010010",
         technique: state.technique,
@@ -280,6 +423,7 @@ async function triggerEncoding() {
     renderVisualizer(encResult, null);
     updateStatusBanner("ready", "READY ON CHANNEL", "Frame encoded. Modify bits to simulate channel noise or click 'Transmit & Verify'.");
     updateFlowLog(encResult, null);
+    updatePipelineSteps(2);
 }
 
 function updateMetricsOnEncode() {
@@ -326,30 +470,57 @@ function toggleBit(idx) {
     document.getElementById("errorCountBadge").textContent = `${state.flippedIndices.size} Bits Flipped`;
     document.getElementById("metricRx").textContent = state.transmittedFrame;
     renderBitButtons();
+    updatePipelineSteps(4);
     triggerVerification();
 }
 
-function injectRandomError() {
+function flashBtn(btn) {
+    if (!btn) return;
+    btn.style.transform = "scale(0.93)";
+    btn.style.filter = "brightness(1.4)";
+    setTimeout(() => {
+        btn.style.transform = "";
+        btn.style.filter = "";
+    }, 220);
+}
+
+function injectRandomError(btn) {
+    flashBtn(btn);
     if (!state.transmittedFrame) return;
     const idx = Math.floor(Math.random() * state.transmittedFrame.length);
     toggleBit(idx);
 }
 
-function injectBurstError() {
+function injectBurstError(btn) {
+    flashBtn(btn);
     if (!state.transmittedFrame) return;
     const n = state.transmittedFrame.length;
     const start = Math.max(0, Math.floor(Math.random() * (n - 2)));
     for (let i = start; i < Math.min(start + 3, n); i++) {
-        toggleBit(i);
+        const chars = state.transmittedFrame.split("");
+        chars[i] = chars[i] === '0' ? '1' : '0';
+        state.transmittedFrame = chars.join("");
+        if (state.flippedIndices.has(i)) {
+            state.flippedIndices.delete(i);
+        } else {
+            state.flippedIndices.add(i);
+        }
     }
+    document.getElementById("errorCountBadge").textContent = `${state.flippedIndices.size} Bits Flipped`;
+    document.getElementById("metricRx").textContent = state.transmittedFrame;
+    renderBitButtons();
+    updatePipelineSteps(4);
+    triggerVerification();
 }
 
-function clearChannelErrors() {
+function clearChannelErrors(btn) {
+    flashBtn(btn);
     state.transmittedFrame = state.encodedFrame;
     state.flippedIndices.clear();
     document.getElementById("errorCountBadge").textContent = "0 Bits Flipped";
     document.getElementById("metricRx").textContent = state.transmittedFrame;
     renderBitButtons();
+    updatePipelineSteps(4);
     triggerVerification();
 }
 
@@ -357,6 +528,18 @@ function clearChannelErrors() {
 // STEP 4: RECEIVER VERIFICATION & CORRECTION
 // -------------------------------------------------------------
 async function triggerVerification() {
+    // Dynamic button clicked feedback
+    const btnVer = document.getElementById("btnVerify");
+    const txtVer = document.getElementById("btnVerifyText");
+    if (btnVer) {
+        btnVer.classList.add("btn-completed");
+        if (txtVer) txtVer.innerHTML = "✓ Step 4: Transmitted & Verified at Receiver!";
+        setTimeout(() => {
+            btnVer.classList.remove("btn-completed");
+            if (txtVer) txtVer.innerHTML = "🔍 Step 4: Transmit & Verify at Receiver";
+        }, 2200);
+    }
+
     const chanMode = document.querySelector('input[name="chanMode"]:checked')?.value || "direct";
     if (chanMode === "ns2") {
         executeNs2Simulation();
@@ -396,6 +579,7 @@ async function triggerVerification() {
     applyVerificationResults(verResult);
     renderVisualizer(state.encodingResult, verResult);
     updateFlowLog(state.encodingResult, verResult);
+    updatePipelineSteps(5);
 }
 
 function applyVerificationResults(v) {

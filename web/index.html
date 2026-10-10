@@ -39,34 +39,34 @@
 
     <!-- Architecture Flow Pipeline Indicator (From Lab Flowchart) -->
     <nav class="pipeline-bar" aria-label="System Architecture Steps">
-        <div class="pipeline-step active" id="pipeStep1">
-            <span class="step-num">1</span>
-            <span class="step-name">Input Binary</span>
+        <div class="pipeline-step completed" id="pipeStep1" role="button" tabindex="0" title="Step 1: Input Data Module (Click to view)" onclick="handleStepClick(1)">
+            <span class="step-num" id="pipeNum1">✓</span>
+            <span class="step-name">1. Input Binary</span>
         </div>
         <div class="pipeline-arrow">➔</div>
-        <div class="pipeline-step active" id="pipeStep2">
-            <span class="step-num">2</span>
-            <span class="step-name">Technique & Encode</span>
+        <div class="pipeline-step current" id="pipeStep2" role="button" tabindex="0" title="Step 2: Technique & Redundancy Encoding (Click to trigger)" onclick="handleStepClick(2)">
+            <span class="step-num" id="pipeNum2">2</span>
+            <span class="step-name">2. Technique & Encode</span>
         </div>
         <div class="pipeline-arrow">➔</div>
-        <div class="pipeline-step active" id="pipeStep3">
-            <span class="step-num">3</span>
-            <span class="step-name">Channel & NS-2</span>
+        <div class="pipeline-step" id="pipeStep3" role="button" tabindex="0" title="Step 3: Channel Transmission & NS-2 (Click to view)" onclick="handleStepClick(3)">
+            <span class="step-num" id="pipeNum3">3</span>
+            <span class="step-name">3. Channel & NS-2</span>
         </div>
         <div class="pipeline-arrow">➔</div>
-        <div class="pipeline-step active" id="pipeStep4">
-            <span class="step-num">4</span>
-            <span class="step-name">Error Injection</span>
+        <div class="pipeline-step" id="pipeStep4" role="button" tabindex="0" title="Step 4: Error Injection Module (Click to focus)" onclick="handleStepClick(4)">
+            <span class="step-num" id="pipeNum4">4</span>
+            <span class="step-name">4. Error Injection</span>
         </div>
         <div class="pipeline-arrow">➔</div>
-        <div class="pipeline-step active" id="pipeStep5">
-            <span class="step-num">5</span>
-            <span class="step-name">Receiver Verification</span>
+        <div class="pipeline-step" id="pipeStep5" role="button" tabindex="0" title="Step 5: Receiver Verification (Click to verify)" onclick="handleStepClick(5)">
+            <span class="step-num" id="pipeNum5">5</span>
+            <span class="step-name">5. Receiver Verify</span>
         </div>
         <div class="pipeline-arrow">➔</div>
-        <div class="pipeline-step active" id="pipeStep6">
-            <span class="step-num">6</span>
-            <span class="step-name">Correction & Result</span>
+        <div class="pipeline-step" id="pipeStep6" role="button" tabindex="0" title="Step 6: Diagnosis & Correction (Click to view results)" onclick="handleStepClick(6)">
+            <span class="step-num" id="pipeNum6">6</span>
+            <span class="step-name">6. Result & Recovery</span>
         </div>
     </nav>
 
@@ -75,7 +75,7 @@
         <!-- Left Configuration & Transmitter Controls -->
         <aside class="control-panel">
             <!-- Card 1: Input Data Module -->
-            <section class="card module-card">
+            <section class="card module-card" id="cardInput">
                 <div class="card-header">
                     <span class="module-tag">Module 1</span>
                     <h3>Input Data Module</h3>
@@ -91,10 +91,10 @@
                 <!-- Presets & Text-to-Binary -->
                 <div class="presets-row">
                     <span class="preset-label">Presets:</span>
-                    <button class="btn-chip" onclick="applyPreset('1011')">4-bit</button>
-                    <button class="btn-chip active" onclick="applyPreset('11010010')">8-bit</button>
-                    <button class="btn-chip" onclick="applyPreset('101100101101')">12-bit</button>
-                    <button class="btn-chip" onclick="applyPreset('1010110001011101')">16-bit</button>
+                    <button class="btn-chip" onclick="applyPreset('1011', this)">4-bit</button>
+                    <button class="btn-chip active" onclick="applyPreset('11010010', this)">8-bit</button>
+                    <button class="btn-chip" onclick="applyPreset('101100101101', this)">12-bit</button>
+                    <button class="btn-chip" onclick="applyPreset('1010110001011101', this)">16-bit</button>
                 </div>
 
                 <div class="ascii-helper-row">
@@ -104,7 +104,7 @@
             </section>
 
             <!-- Card 2: Error Control Technique Selection -->
-            <section class="card module-card">
+            <section class="card module-card" id="cardTechnique">
                 <div class="card-header">
                     <span class="module-tag">Modules 2–6</span>
                     <h3>Select Technique</h3>
@@ -157,12 +157,12 @@
                 </div>
 
                 <button class="btn-primary" id="btnEncode" onclick="triggerEncoding()">
-                    <span>⚡ Step 1 & 2: Encode & Generate Redundancy</span>
+                    <span id="btnEncodeText">⚡ Step 1 & 2: Encode & Generate Redundancy</span>
                 </button>
             </section>
 
             <!-- Card 3: Transmitter & Error Injection Module -->
-            <section class="card module-card">
+            <section class="card module-card" id="cardChannel">
                 <div class="card-header">
                     <span class="module-tag">Module 7</span>
                     <h3>Transmitter & Error Injection</h3>
@@ -175,13 +175,13 @@
                 </div>
 
                 <div class="error-action-buttons">
-                    <button class="btn-action warn" onclick="injectRandomError()">
+                    <button class="btn-action warn" id="btnFlipRand" onclick="injectRandomError(this)">
                         <span>🎲 Flip 1 Random Bit</span>
                     </button>
-                    <button class="btn-action danger" onclick="injectBurstError()">
+                    <button class="btn-action danger" id="btnBurst" onclick="injectBurstError(this)">
                         <span>⚡ Inject Burst (3 bits)</span>
                     </button>
-                    <button class="btn-action success" onclick="clearChannelErrors()">
+                    <button class="btn-action success" id="btnClean" onclick="clearChannelErrors(this)">
                         <span>✓ Clean (No Error)</span>
                     </button>
                 </div>
@@ -190,19 +190,19 @@
                 <div class="channel-select-box">
                     <span class="box-title">Communication Channel:</span>
                     <div class="channel-modes">
-                        <label class="chan-mode active">
-                            <input type="radio" name="chanMode" value="direct" checked>
+                        <label class="chan-mode active" id="chanModeDirectLabel">
+                            <input type="radio" name="chanMode" value="direct" checked onchange="onChanModeChange()">
                             <span>Direct Channel</span>
                         </label>
-                        <label class="chan-mode">
-                            <input type="radio" name="chanMode" value="ns2">
+                        <label class="chan-mode" id="chanModeNs2Label">
+                            <input type="radio" name="chanMode" value="ns2" onchange="onChanModeChange()">
                             <span>NS-2 Simulator (Link with ErrorModel)</span>
                         </label>
                     </div>
                 </div>
 
                 <button class="btn-success" id="btnVerify" onclick="triggerVerification()">
-                    <span>🔍 Step 4: Transmit & Verify at Receiver</span>
+                    <span id="btnVerifyText">🔍 Step 4: Transmit & Verify at Receiver</span>
                 </button>
             </section>
         </aside>

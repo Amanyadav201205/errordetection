@@ -229,18 +229,20 @@ class NetworkSimulatorApp(tk.Tk):
         preset_frame.pack(fill="x", pady=2)
         
         tk.Label(preset_frame, text="Presets:", font=("Segoe UI", 8), bg=THEME["panel"], fg=THEME["text_muted"]).pack(side="left")
+        self.preset_btns = {}
         for label, val in [("8-bit", "11010010"), ("4-bit", "1011"), ("12-bit", "101100101101"), ("16-bit", "1010110001011101")]:
             btn = tk.Button(
                 preset_frame,
                 text=label,
                 font=("Segoe UI", 8),
-                bg=THEME["card"],
-                fg=THEME["text"],
+                bg=THEME["accent"] if val == "11010010" else THEME["card"],
+                fg="#ffffff" if val == "11010010" else THEME["text"],
                 relief="flat",
                 activebackground=THEME["accent"],
                 command=lambda v=val: self.set_input_data(v)
             )
             btn.pack(side="left", padx=3)
+            self.preset_btns[val] = btn
             
         # ASCII text conversion helper
         ascii_box = tk.Frame(card_input, bg=THEME["panel"])
@@ -428,6 +430,11 @@ class NetworkSimulatorApp(tk.Tk):
     def set_input_data(self, val: str):
         self.ent_data.delete(0, tk.END)
         self.ent_data.insert(0, val)
+        for v, b in getattr(self, "preset_btns", {}).items():
+            if v == val:
+                b.config(bg=THEME["accent"], fg="#ffffff")
+            else:
+                b.config(bg=THEME["card"], fg=THEME["text"])
         self.validate_binary_input()
         self.handle_encode()
 
@@ -822,6 +829,16 @@ class NetworkSimulatorApp(tk.Tk):
         self.status_banner.config(bg=THEME["card"])
         self.lbl_status_icon.config(text="READY ON CHANNEL", fg=THEME["accent_hover"], bg=THEME["card"])
         self.lbl_status_desc.config(text=f"Frame '{self.current_encoded_frame}' encoded. Modify bits or proceed to verify.", bg=THEME["card"])
+        
+        # Animate button feedback
+        self.btn_encode.config(
+            text="✓ Step 1 & 2: Encoded & Redundancy Generated!",
+            bg=THEME["success"]
+        )
+        self.after(2000, lambda: self.btn_encode.config(
+            text="⚡ Step 1 & 2: Encode & Generate Redundancy",
+            bg=THEME["accent"]
+        ))
 
     def get_technique_display_name(self) -> str:
         names = {
@@ -998,6 +1015,16 @@ class NetworkSimulatorApp(tk.Tk):
         
         # Update Visualizer Tab
         self.update_visualizer_tab(self.current_encoding_result, v_res)
+        
+        # Animate Step 4 button feedback
+        self.btn_verify.config(
+            text="✓ Step 4: Transmitted & Verified at Receiver!",
+            bg="#059669"
+        )
+        self.after(2000, lambda: self.btn_verify.config(
+            text="🔍 Step 4: Transmit & Verify at Receiver",
+            bg=THEME["success"]
+        ))
 
     def update_visualizer_tab(self, enc_res: Dict[str, Any], v_res: Dict[str, Any] = None):
         tech = self.tech_var.get()
