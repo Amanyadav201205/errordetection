@@ -2,7 +2,7 @@
 title Interactive Network Error Detection and Correction Simulator
 echo ======================================================================
 echo Interactive Network Error Detection and Correction Simulator
-echo Course: BCSE308P - Computer Networks Lab
+echo Computer Networks Lab Project
 echo Team: Aman Kumar Yadav, Pratik Bharadbhunje, Devrishi Gadia
 echo ======================================================================
 echo Starting Application...
