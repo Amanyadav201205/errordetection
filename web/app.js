@@ -513,18 +513,20 @@ function onCrcPresetChange(val) {
 // -------------------------------------------------------------
 // STEP 1 & 2: ENCODING AND REDUNDANCY GENERATION
 // -------------------------------------------------------------
-async function triggerEncoding() {
-    // Dynamic button clicked feedback
-    const btnEnc = document.getElementById("btnEncode");
-    const txtEnc = document.getElementById("btnEncodeText");
-    if (btnEnc) {
-        btnEnc.classList.add("btn-completed");
-        if (txtEnc) txtEnc.innerHTML = "✓ Step 1 & 2: Encoded & Redundancy Generated!";
-        showToast("Step 1 & 2 Completed", "Frame encoded with check bits attached!", "success", "⚡");
-        setTimeout(() => {
-            btnEnc.classList.remove("btn-completed");
-            if (txtEnc) txtEnc.innerHTML = "⚡ Step 1 & 2: Re-Encode / Update Redundancy";
-        }, 2200);
+async function triggerEncoding(isUserClick = false) {
+    // Dynamic button clicked feedback ONLY when user explicitly clicks the button
+    if (isUserClick) {
+        const btnEnc = document.getElementById("btnEncode");
+        const txtEnc = document.getElementById("btnEncodeText");
+        if (btnEnc) {
+            btnEnc.classList.add("btn-completed");
+            if (txtEnc) txtEnc.innerHTML = "✓ Step 1 & 2: Encoded & Redundancy Generated!";
+            showToast("Step 1 & 2 Completed", "Frame encoded with check bits attached!", "success", "⚡");
+            setTimeout(() => {
+                btnEnc.classList.remove("btn-completed");
+                if (txtEnc) txtEnc.innerHTML = "⚡ Step 1 & 2: Re-Encode / Update Redundancy";
+            }, 2200);
+        }
     }
 
     const payload = {
@@ -680,18 +682,20 @@ function clearChannelErrors(btn) {
 // -------------------------------------------------------------
 // STEP 4: RECEIVER VERIFICATION & CORRECTION
 // -------------------------------------------------------------
-async function triggerVerification() {
-    // Dynamic button clicked feedback
-    const btnVer = document.getElementById("btnVerify");
-    const txtVer = document.getElementById("btnVerifyText");
-    if (btnVer) {
-        btnVer.classList.add("btn-completed");
-        if (txtVer) txtVer.innerHTML = "✓ Step 4: Transmitted & Verified at Receiver!";
-        showToast("Step 4: Transmitted & Verified", "Receiver executed verification & error diagnosis!", "info", "🔍");
-        setTimeout(() => {
-            btnVer.classList.remove("btn-completed");
-            if (txtVer) txtVer.innerHTML = "🔍 Step 4: Transmit & Verify at Receiver";
-        }, 2200);
+async function triggerVerification(isUserClick = false) {
+    // Dynamic button clicked feedback ONLY when user explicitly clicks the button
+    if (isUserClick) {
+        const btnVer = document.getElementById("btnVerify");
+        const txtVer = document.getElementById("btnVerifyText");
+        if (btnVer) {
+            btnVer.classList.add("btn-completed");
+            if (txtVer) txtVer.innerHTML = "✓ Step 4: Transmitted & Verified at Receiver!";
+            showToast("Step 4: Transmitted & Verified", "Receiver executed verification & error diagnosis!", "info", "🔍");
+            setTimeout(() => {
+                btnVer.classList.remove("btn-completed");
+                if (txtVer) txtVer.innerHTML = "🔍 Step 4: Transmit & Verify at Receiver";
+            }, 2200);
+        }
     }
 
     const chanMode = document.querySelector('input[name="chanMode"]:checked')?.value || "direct";
