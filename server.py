@@ -54,6 +54,8 @@ class SimulatorRequestHandler(BaseHTTPRequestHandler):
         req_path = self.path.split("?")[0]
         if req_path == "/" or req_path == "":
             req_path = "/index.html"
+        elif req_path == "/presentation":
+            req_path = "/presentation.html"
             
         if req_path == "/favicon.ico":
             self.send_response(204)

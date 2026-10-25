@@ -1,0 +1,15 @@
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Temporary / Scratch artifacts
+*.png
+Project_70_Percent*
+generate_70_percent*
+
+# OS / Editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
